@@ -9,8 +9,6 @@ namespace loader_lib
 {
     public class RunProc
     {
-        private bool initialized;
-
         private Mutex mutex;
         private IntPtr thread;
 

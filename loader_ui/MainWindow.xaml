@@ -18,7 +18,7 @@
                 <TextBlock x:Name="textBlock" TextWrapping="Wrap" Text="欢迎！" Margin="0,0,0,8" Height="42" FontSize="32" FontFamily="Microsoft YaHei UI Light"/>
                 <StackPanel Height="86">
                     <TextBlock x:Name="textBlock1" TextWrapping="Wrap" Text="服务器或主机地址及端口 (仅用于连接特定服务器或主机)" Height="26" Margin="90,0" FontFamily="Microsoft YaHei UI Light" FontSize="12.710"/>
-                    <TextBox x:Name="textBox" Height="37" TextWrapping="Wrap" Text="" Margin="90,0" Width="Auto" VerticalAlignment="Stretch" FontSize="26.667" FontFamily="Microsoft YaHei UI Light" TextChanged="textBox_TextChanged"/>
+                    <TextBox x:Name="textBox" Height="37" TextWrapping="Wrap" Text="" Margin="90,0" Width="Auto" VerticalAlignment="Stretch" FontSize="26.667" FontFamily="Microsoft YaHei UI Light" TextChanged="textBox_TextChanged" LostFocus="textBox_LostFocus"/>
                 </StackPanel>
                 <StackPanel Height="113">
                     <StackPanel Margin="50,0,51,0" HorizontalAlignment="Center" VerticalAlignment="Center" Height="40">

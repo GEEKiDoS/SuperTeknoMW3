@@ -22,27 +22,28 @@ namespace loader_ui
     /// </summary>
     public partial class Settings : MetroWindow
     {
-        private static Proflie profile;
+        private Proflie profile;
+        private bool canclose = false;
 
         public Settings(Proflie profile)
         {
-            MainWindow.profile = profile;
+            this.profile = profile;
             InitializeComponent();
         }
 
-        private async Task SaveProfile()
+        private void SaveProfile()
         {
             TextWriter writer = new StreamWriter("teknogods.ini");
 
             try
             {
-                await writer.WriteLineAsync("[Settings]" + Environment.NewLine);
-                await writer.WriteLineAsync("Name=" + profile.Name + Environment.NewLine);
-                await writer.WriteLineAsync("ID=" + profile.ID + Environment.NewLine);
-                await writer.WriteLineAsync("FOV=" + profile.FOV + Environment.NewLine);
-                await writer.WriteLineAsync("Clantag=" + profile.Clantag + Environment.NewLine);
-                await writer.WriteLineAsync("Title=" + profile.Title + Environment.NewLine);
-                await writer.WriteLineAsync("ShowConsole=" + profile.ShowConsole);
+                writer.WriteLine("[Settings]");
+                writer.WriteLine("Name=" + profile.Name);
+                writer.WriteLine("ID=" + profile.ID);
+                writer.WriteLine("FOV=" + profile.FOV);
+                writer.WriteLine("Clantag=" + profile.Clantag);
+                writer.WriteLine("Title=" + profile.Title);
+                writer.WriteLine("ShowConsole=" + profile.ShowConsole);
             }
             catch (Exception)
             {
@@ -63,7 +64,7 @@ namespace loader_ui
             txt_title.Text = profile.Title;
         }
 
-        private async void button_Click(object sender, RoutedEventArgs e)
+        private void button_Click(object sender, RoutedEventArgs e)
         {
             if (string.IsNullOrEmpty(txt_nickname.Text))
             {
@@ -92,9 +93,23 @@ namespace loader_ui
             profile.Title = txt_title.Text;
             profile.ShowConsole = false;
 
-            await SaveProfile();
+            SaveProfile();
 
-            MainWindow.profile = profile;
+            canclose = true;
+            Close();
+        }
+
+        private void MetroWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (!canclose)
+            {
+                e.Cancel = true;
+            }
+        }
+
+        private void MetroWindow_LostFocus(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }

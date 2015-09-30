@@ -24,7 +24,7 @@ namespace loader_ui
     /// </summary>
     public partial class MainWindow : MetroWindow
     {
-        public static Proflie profile = new Proflie();
+        private Proflie profile;
         private Random rng = new Random();
 
         public MainWindow()
@@ -46,7 +46,6 @@ namespace loader_ui
             LoadProfile();
 
             label.Content = "检查更新...";
-            EnableAll();
             try
             {
                 string version = "1.0.0";
@@ -60,16 +59,26 @@ namespace loader_ui
                         Process.Start("http://bbs.3dmgame.com/thread-4461802-1-1.html");
                         Close();
                     }
+                    else
+                    {
+                        label.Content = "我们建议你及时升级新版本以获得最佳体验！";
+                        probar.IsIndeterminate = false;
+                    }
                 }
                 else
                 {
                     label.Content = "就绪";
-                    probar.IsEnabled = false;
+                    probar.IsIndeterminate = false;
                 }
             }
             catch (Exception ex)
             {
                 label.Content = "检查更新失败:" + ex.Message;
+                probar.IsIndeterminate = false;
+            }
+            finally
+            {
+                EnableAll();
             }
         }
 
@@ -81,6 +90,7 @@ namespace loader_ui
                 {
                     bool isChanged = false;
                     IniParser ini = new IniParser("teknogods.ini");
+                    profile = new Proflie();
 
                     profile.Name = ini.GetSetting("Settings", "Name");
                     if ((string.IsNullOrEmpty(profile.Name) || string.IsNullOrWhiteSpace(profile.Name)) || (profile.Name.Length > 15 || profile.Name.Length < 3))
@@ -94,7 +104,7 @@ namespace loader_ui
                     {
                         var low = (long)rng.Next(0x1000, 0xFFFF);
                         var high = (long)rng.Next(0x1000, 0xFFFF);
-                        profile.ID = Convert.ToInt64(low + "" + high);
+                        profile.ID = Convert.ToInt64(low + string.Empty + high);
                         isChanged = true;
                     }
 
@@ -115,7 +125,7 @@ namespace loader_ui
                     profile.Title = ini.GetSetting("Settings", "Title");
                     if ((string.IsNullOrEmpty(profile.Name) || string.IsNullOrWhiteSpace(profile.Name)))
                     {
-                        profile.Title = "^5Super TeknoMW3";
+                        profile.Title = "^5SuperTeknoMW3";
                         isChanged = true;
                     }
 
@@ -132,6 +142,10 @@ namespace loader_ui
                         Settings st = new Settings(profile);
                         st.ShowDialog();
                         UpdateProfile();
+                    }
+                    else
+                    {
+                        textBlock.Text = "欢迎！" + profile.Name;
                     }
                 }
                 else
@@ -195,7 +209,7 @@ namespace loader_ui
             Task tick = runproc.Tick(proc == "iw5mp.exe" ? "teknomw3.dll" : "teknomw3_sp.dll");
             tick.Start();
 
-            probar.IsEnabled = true;
+            probar.IsIndeterminate = true;
             label.Content = "游戏启动中...";
 
             await Task.Delay(3000);
@@ -207,15 +221,15 @@ namespace loader_ui
                     await Task.Delay(5000);
                     if (tick.IsCompleted || tick.IsCanceled)
                     {
-                        probar.IsEnabled = false;
-                        label.Content = "游戏已退出";
+                        probar.IsIndeterminate = false;
+                        label.Content = "就绪";
                         break;
                     }
                 }
             }
             catch (Exception ex)
             {
-                probar.IsEnabled = false;
+                probar.IsIndeterminate = false;
                 label.Content = "发生错误：" + ex.Message;
             }
         }
@@ -266,7 +280,9 @@ namespace loader_ui
             if (!File.Exists("iw5mp.exe"))
             {
                 MessageBox.Show("未找到iw5mp.exe！请检查你的游戏是否完整！", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
             }
+            DisableAll();
             if (string.IsNullOrEmpty(textBox.Text))
             {
                 await StartProcess("iw5mp.exe", "");
@@ -286,7 +302,9 @@ namespace loader_ui
             if (!File.Exists("iw5sp.exe"))
             {
                 MessageBox.Show("未找到iw5sp.exe！请检查你的游戏是否完整！", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
             }
+            DisableAll();
             if (string.IsNullOrEmpty(textBox.Text))
             {
                 await StartProcess("iw5sp.exe", "");
@@ -303,9 +321,19 @@ namespace loader_ui
 
 
 
-        public void UpdateProfile()
+        public async void UpdateProfile()
         {
-            textBlock.Text = profile.Name;
+            probar.IsIndeterminate = true;
+            label.Content = "更新配置文件...";
+            LoadProfile();
+            await Task.Delay(1000);
+            label.Content = "就绪";
+            probar.IsIndeterminate = false;
+        }
+
+        private void textBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            CheckIp(textBox.Text);
         }
     }
 }

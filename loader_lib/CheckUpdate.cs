@@ -26,7 +26,7 @@ namespace loader_lib
 
                     string content = await response.Content.ReadAsStringAsync();
 
-                    return content.Substring(content.IndexOf("%VERSION:"), content.Split(new string[] { "%VERSION:" }, 2, StringSplitOptions.RemoveEmptyEntries)[1].Split(new char[] { '%' }, 2)[0].Length);
+                    return content.Substring(content.IndexOf("%VERSION:") + 9, content.Split(new string[] { "%VERSION:" }, 2, StringSplitOptions.RemoveEmptyEntries)[1].Split(new char[] { '%' }, 2)[0].Length);
                 }
             }
             catch (Exception)
