@@ -285,7 +285,7 @@ namespace loader_ui
                     }
                     else
                     {
-                        textBox.Text = result.ToString() + ":" + port;
+                        textBox.Text = domain.Split(new char[] { ':' }, 2)[0] + ":" + port;
                     }
                 }
                 else
