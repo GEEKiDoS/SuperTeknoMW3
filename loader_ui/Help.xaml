@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:loader_ui"
         xmlns:controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
         mc:Ignorable="d"
-        Title="Help and About" Height="360.34" Width="409.632" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" WindowStyle="ToolWindow">
+        Title="Help and About" Height="360.34" Width="409.632" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" WindowStyle="ToolWindow" Icon="logo.ico">
     <Grid>
         <TextBlock x:Name="textblock1" HorizontalAlignment="Left" TextWrapping="Wrap" Text="Super TeknoMW3 超级 TeknoMW3 载入器" VerticalAlignment="Top" Margin="10,10,0,0" Height="27" Width="382" FontSize="16" FontFamily="Microsoft YaHei UI Light"/>
         <StackPanel Margin="10,289,10,0" Height="40" VerticalAlignment="Top">

@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:loader_ui"
         xmlns:controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
         mc:Ignorable="d"
-        Title="Settings" Height="302.549" Width="300"  ResizeMode="NoResize" WindowStartupLocation="CenterScreen" WindowStyle="ToolWindow" Loaded="MetroWindow_Loaded" Closing="MetroWindow_Closing" LostFocus="MetroWindow_LostFocus">
+        Title="Settings" Height="302.549" Width="300"  ResizeMode="NoResize" WindowStartupLocation="CenterScreen" WindowStyle="ToolWindow" Loaded="MetroWindow_Loaded" Closing="MetroWindow_Closing" LostFocus="MetroWindow_LostFocus" Icon="logo.ico">
     <Grid>
         <StackPanel Margin="10">
             <StackPanel Height="54">

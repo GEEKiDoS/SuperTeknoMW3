@@ -39,11 +39,11 @@ namespace loader_ui
             {
                 writer.WriteLine("[Settings]");
                 writer.WriteLine("Name=" + profile.Name);
-                writer.WriteLine("ID=" + profile.ID);
+                //writer.WriteLine("ID=" + profile.ID);
                 writer.WriteLine("FOV=" + profile.FOV);
                 writer.WriteLine("Clantag=" + profile.Clantag);
                 writer.WriteLine("Title=" + profile.Title);
-                writer.WriteLine("ShowConsole=" + profile.ShowConsole);
+                writer.WriteLine("ShowConsole=" + profile.ShowConsole.ToString().ToLower());
             }
             catch (Exception)
             {

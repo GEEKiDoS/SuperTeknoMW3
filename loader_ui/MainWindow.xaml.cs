@@ -43,7 +43,15 @@ namespace loader_ui
         {
             DisableAll();
             await Task.Delay(1000);
-            LoadProfile();
+            try
+            {
+                LoadProfile();
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("无法载入配置文件！请检查是否有足够的权限读取和修改此文件。", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                Close();
+            }
 
             label.Content = "检查更新...";
             try
@@ -99,14 +107,14 @@ namespace loader_ui
                         isChanged = true;
                     }
 
-                    profile.ID = Convert.ToInt64(ini.GetSetting("Settings", "ID"));
-                    if (string.IsNullOrWhiteSpace(profile.ID.ToString()))
-                    {
-                        var low = (long)rng.Next(0x1000, 0xFFFF);
-                        var high = (long)rng.Next(0x1000, 0xFFFF);
-                        profile.ID = Convert.ToInt64(low + string.Empty + high);
-                        isChanged = true;
-                    }
+                    //profile.ID = Convert.ToInt64(ini.GetSetting("Settings", "ID"));
+                    //if (string.IsNullOrWhiteSpace(profile.ID.ToString()) || profile.ID.ToString() == "0")
+                    //{
+                    //    var low = (long)rng.Next(0x1000, 0xFFFF);
+                    //    var high = (long)rng.Next(0x1000, 0xFFFF);
+                    //    profile.ID = Convert.ToInt64(low + string.Empty + high);
+                    //    isChanged = true;
+                    //}
 
                     profile.FOV = Convert.ToInt32(ini.GetSetting("Settings", "FOV"));
                     if (profile.FOV > 90 || profile.FOV < 65)
@@ -116,14 +124,14 @@ namespace loader_ui
                     }
 
                     profile.Clantag = ini.GetSetting("Settings", "Clantag");
-                    if ((string.IsNullOrEmpty(profile.Name) || string.IsNullOrWhiteSpace(profile.Name)) || (profile.Name.Length > 4 || profile.Name.Length < 2))
+                    if ((string.IsNullOrEmpty(profile.Clantag) || string.IsNullOrWhiteSpace(profile.Clantag)) || (profile.Clantag.Length > 4 || profile.Clantag.Length < 2))
                     {
                         profile.Clantag = "SXXM";
                         isChanged = true;
                     }
 
                     profile.Title = ini.GetSetting("Settings", "Title");
-                    if ((string.IsNullOrEmpty(profile.Name) || string.IsNullOrWhiteSpace(profile.Name)))
+                    if ((string.IsNullOrEmpty(profile.Title) || string.IsNullOrWhiteSpace(profile.Title)) || profile.Title.Length > 15)
                     {
                         profile.Title = "^5SuperTeknoMW3";
                         isChanged = true;
@@ -138,7 +146,7 @@ namespace loader_ui
 
                     if (isChanged)
                     {
-                        MessageBox.Show("检测到配置文件存在异常，已自动修复异常条目，请重新调整你的玩家信息。", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        MessageBox.Show("检测到配置文件存在异常，请重新调整你的玩家信息。", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
                         Settings st = new Settings(profile);
                         st.ShowDialog();
                         UpdateProfile();
@@ -150,8 +158,8 @@ namespace loader_ui
                 }
                 else
                 {
-                    CreateNewProfile();
                     MessageBox.Show("未检测到任何配置文件，你需要先设置你的玩家信息。", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    CreateNewProfile();
 
                     Settings st = new Settings(profile);
                     st.ShowDialog();
@@ -160,8 +168,9 @@ namespace loader_ui
             }
             catch (Exception)
             {
-                CreateNewProfile();
+                File.Delete("teknogods.ini");
                 MessageBox.Show("配置文件无效，已创建新的配置文件，请重新调整你的玩家信息。", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                CreateNewProfile();
 
                 Settings st = new Settings(profile);
                 st.ShowDialog();
@@ -171,14 +180,34 @@ namespace loader_ui
 
         private void CreateNewProfile()
         {
-            File.Create("teknogods.ini");
+            var low = (long)rng.Next(0x1000, 0xFFFF);
+            var high = (long)rng.Next(0x1000, 0xFFFF);
 
             profile.Name = "CHN_TeknoPlayer";
-            profile.ID = (long)rng.Next(0x10000000, 0xFFFFFFF);
+            //profile.ID = Convert.ToInt64(low + string.Empty + high);
             profile.FOV = 75;
             profile.Clantag = "SXXM";
-            profile.Title = "^5Super TeknoMW3";
+            profile.Title = "^5SuperTeknoMW3";
             profile.ShowConsole = false;
+
+            try
+            {
+                File.WriteAllLines("teknogods.ini", new string[]
+                {
+                    "[Settings]",
+                    "Name=" + profile.Name,
+                    //"ID=" + profile.ID,
+                    "FOV=" + profile.FOV,
+                    "Clantag=" + profile.Clantag,
+                    "Title=" + profile.Title,
+                    "ShowConsole=" + profile.ShowConsole.ToString().ToLower()
+                });
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("创建配置文件失败！请检查磁盘是否有写保护，以及是否有写入权限！", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                Close();
+            }
         }
 
         private void DisableAll()
@@ -238,11 +267,35 @@ namespace loader_ui
         {
             try
             {
-                UriHostNameType result = Uri.CheckHostName(domain);
+                int port = 1;
 
-                if (result == UriHostNameType.Unknown || result == UriHostNameType.Basic)
+                if (domain.Contains(":"))
                 {
-                    textBox.Text = "";
+                    port = Convert.ToInt32(domain.Split(new char[] { ':' }, 2)[1]);
+                    if (port > 65536 || port < 1)
+                    {
+                        port = 27016;
+                    }
+
+                    UriHostNameType result = Uri.CheckHostName(domain.Split(new char[] { ':' }, 2)[0]);
+
+                    if (result == UriHostNameType.Unknown || result == UriHostNameType.Basic)
+                    {
+                        textBox.Text = "";
+                    }
+                    else
+                    {
+                        textBox.Text = result.ToString() + ":" + port;
+                    }
+                }
+                else
+                {
+                    UriHostNameType result2 = Uri.CheckHostName(domain);
+
+                    if (result2 == UriHostNameType.Unknown || result2 == UriHostNameType.Basic)
+                    {
+                        textBox.Text = "";
+                    }
                 }
             }
             catch (Exception)
@@ -268,11 +321,6 @@ namespace loader_ui
         {
             Help help = new Help();
             help.ShowDialog();
-        }
-
-        private void textBox_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            CheckIp(textBox.Text);
         }
 
         private async void btn_mp_Click(object sender, RoutedEventArgs e)
