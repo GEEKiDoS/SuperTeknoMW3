@@ -10,7 +10,7 @@ using System.Windows;
 [assembly: AssemblyTitle("SuperTeknoMW3")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("xmace@outlook.com")]
+[assembly: AssemblyCompany("QQ群：195343722")]
 [assembly: AssemblyProduct("SuperTeknoMW3")]
 [assembly: AssemblyCopyright("Copyright © A2ON 2015")]
 [assembly: AssemblyTrademark("")]

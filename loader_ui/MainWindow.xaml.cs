@@ -126,7 +126,7 @@ namespace loader_ui
                     }
 
                     profile.Clantag = ini.GetSetting("Settings", "Clantag");
-                    if (profile.Clantag.Length > 4)
+                    if (string.IsNullOrWhiteSpace(profile.Clantag) || profile.Clantag.Length > 4)
                     {
                         profile.Clantag = "SXXM";
                         AutoChanged = true;
@@ -135,7 +135,7 @@ namespace loader_ui
                     profile.Title = ini.GetSetting("Settings", "Title");
                     if (profile.Title.Length > 25)
                     {
-                        profile.Title = "^5SuperTeknoMW3";
+                        profile.Title = "";
                         AutoChanged = true;
                     }
 
