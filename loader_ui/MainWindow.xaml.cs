@@ -97,7 +97,8 @@ namespace loader_ui
             {
                 if (File.Exists("teknogods.ini"))
                 {
-                    bool isChanged = false;
+                    bool AutoChanged = false;
+                    bool NeedChange = false;
                     IniParser ini = new IniParser("teknogods.ini");
                     profile = new Proflie();
 
@@ -105,7 +106,7 @@ namespace loader_ui
                     if ((string.IsNullOrEmpty(profile.Name) || string.IsNullOrWhiteSpace(profile.Name)) || (profile.Name.Length > 15 || profile.Name.Length < 3))
                     {
                         profile.Name = "CHN_TeknoPlayer";
-                        isChanged = true;
+                        NeedChange = true;
                     }
 
                     //profile.ID = Convert.ToInt64(ini.GetSetting("Settings", "ID"));
@@ -121,36 +122,54 @@ namespace loader_ui
                     if (profile.FOV > 90 || profile.FOV < 65)
                     {
                         profile.FOV = 75;
-                        isChanged = true;
+                        AutoChanged = true;
                     }
 
                     profile.Clantag = ini.GetSetting("Settings", "Clantag");
-                    if ((string.IsNullOrEmpty(profile.Clantag) || string.IsNullOrWhiteSpace(profile.Clantag)) || (profile.Clantag.Length > 4 || profile.Clantag.Length < 2))
+                    if (profile.Clantag.Length > 4)
                     {
                         profile.Clantag = "SXXM";
-                        isChanged = true;
+                        AutoChanged = true;
                     }
 
                     profile.Title = ini.GetSetting("Settings", "Title");
-                    if ((string.IsNullOrEmpty(profile.Title) || string.IsNullOrWhiteSpace(profile.Title)) || profile.Title.Length > 25)
+                    if (profile.Title.Length > 25)
                     {
                         profile.Title = "^5SuperTeknoMW3";
-                        isChanged = true;
+                        AutoChanged = true;
                     }
 
-                    profile.ShowConsole = Convert.ToBoolean(ini.GetSetting("Settings", "ShowConsole"));
+                    string showconsole = ini.GetSetting("Settings", "ShowConsole");
+                    if (string.IsNullOrEmpty(showconsole))
+                    {
+                        profile.ShowConsole = false;
+                        AutoChanged = true;
+                        goto LABEL_001;
+                    }
+                    profile.ShowConsole = Convert.ToBoolean(showconsole);
                     if (profile.ShowConsole == true)
                     {
                         profile.ShowConsole = false;
-                        isChanged = true;
+                        AutoChanged = true;
                     }
 
-                    if (isChanged)
+                LABEL_001:
+
+                    if (NeedChange)
                     {
-                        MessageBox.Show("检测到配置文件存在异常，请重新调整你的玩家信息。", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        MessageBox.Show("你的玩家名称似乎有问题，请重新调整你的玩家信息。", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
                         Settings st = new Settings(profile);
                         st.ShowDialog();
                         UpdateProfile();
+                    }
+                    else if (AutoChanged)
+                    {
+                        ini.AddSetting("Settings", "FOV", profile.FOV.ToString());
+                        ini.AddSetting("Settings", "Clantag", profile.Clantag);
+                        ini.AddSetting("Settings", "Title", profile.Title);
+                        ini.AddSetting("Settings", "ShowConsole", profile.ShowConsole.ToString().ToLower());
+
+                        ini.SaveSettings();
                     }
                     else
                     {
@@ -159,7 +178,7 @@ namespace loader_ui
                 }
                 else
                 {
-                    MessageBox.Show("未检测到任何配置文件，你需要先设置你的玩家信息。", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show("未检测到配置文件，你需要先设置你的玩家信息。", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
                     CreateNewProfile();
 
                     Settings st = new Settings(profile);
@@ -170,7 +189,7 @@ namespace loader_ui
             catch (Exception)
             {
                 File.Delete("teknogods.ini");
-                MessageBox.Show("配置文件无效，已创建新的配置文件，请重新调整你的玩家信息。", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("读取配置文件时遇到问题，你的配置文件可能已损坏，请重新调整你的玩家信息。", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
                 CreateNewProfile();
 
                 Settings st = new Settings(profile);
