@@ -87,6 +87,35 @@ namespace loader_ui
                 return;
             }
 
+            if ((string.IsNullOrEmpty(profile.Name) || string.IsNullOrWhiteSpace(profile.Name)) || (profile.Name.Length > 15 || profile.Name.Length < 3))
+            {
+                MessageBox.Show("游戏昵称不符合要求！请重新输入。", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            //profile.ID = Convert.ToInt64(ini.GetSetting("Settings", "ID"));
+            //if (string.IsNullOrWhiteSpace(profile.ID.ToString()) || profile.ID.ToString() == "0")
+            //{
+            //}
+
+            if (profile.FOV > 90 || profile.FOV < 65)
+            {
+                MessageBox.Show("视野大小不符合要求！请重新输入。", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            if ((string.IsNullOrEmpty(profile.Clantag) || string.IsNullOrWhiteSpace(profile.Clantag)) || (profile.Clantag.Length > 4 || profile.Clantag.Length < 2))
+            {
+                MessageBox.Show("战队不符合要求！请重新输入。", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            if ((string.IsNullOrEmpty(profile.Title) || string.IsNullOrWhiteSpace(profile.Title)) || profile.Title.Length > 25)
+            {
+                MessageBox.Show("标签文本不符合要求！请重新输入。", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
             profile.Name = txt_nickname.Text;
             profile.FOV = Convert.ToInt32(txt_fov.Text);
             profile.Clantag = txt_clan.Text;

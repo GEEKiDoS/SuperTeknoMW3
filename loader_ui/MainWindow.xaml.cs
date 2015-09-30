@@ -26,6 +26,7 @@ namespace loader_ui
     {
         private Proflie profile;
         private Random rng = new Random();
+        private bool canclose = true;
 
         public MainWindow()
         {
@@ -131,7 +132,7 @@ namespace loader_ui
                     }
 
                     profile.Title = ini.GetSetting("Settings", "Title");
-                    if ((string.IsNullOrEmpty(profile.Title) || string.IsNullOrWhiteSpace(profile.Title)) || profile.Title.Length > 15)
+                    if ((string.IsNullOrEmpty(profile.Title) || string.IsNullOrWhiteSpace(profile.Title)) || profile.Title.Length > 25)
                     {
                         profile.Title = "^5SuperTeknoMW3";
                         isChanged = true;
@@ -232,34 +233,27 @@ namespace loader_ui
             btn_sp.IsEnabled = true;
         }
 
-        private async Task StartProcess(string proc, string arguements)
+        private async void StartProcess(string proc, string arguements)
         {
-            RunProc runproc = new RunProc { ExecutableName = proc, Commandargs = arguements };
-            Task tick = runproc.Tick(proc == "iw5mp.exe" ? "teknomw3.dll" : "teknomw3_sp.dll");
-            tick.Start();
-
             probar.IsIndeterminate = true;
-            label.Content = "游戏启动中...";
-
-            await Task.Delay(3000);
-
+            label.Content = "游戏运行中...";
+            canclose = false;
+            DisableAll();
             try
             {
-                while (true)
-                {
-                    await Task.Delay(5000);
-                    if (tick.IsCompleted || tick.IsCanceled)
-                    {
-                        probar.IsIndeterminate = false;
-                        label.Content = "就绪";
-                        break;
-                    }
-                }
+                RunProc runproc = new RunProc { ExecutableName = proc, Commandargs = arguements };
+                await runproc.Tick(proc == "iw5mp.exe" ? "teknomw3.dll" : "teknomw3_sp.dll");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
+                MessageBox.Show("游戏启动失败！请检查游戏文件是否可用，并且已正确安装联机破解！");
+            }
+            finally
+            {
+                EnableAll();
                 probar.IsIndeterminate = false;
-                label.Content = "发生错误：" + ex.Message;
+                label.Content = "就绪";
+                canclose = true;
             }
         }
 
@@ -323,17 +317,16 @@ namespace loader_ui
             help.ShowDialog();
         }
 
-        private async void btn_mp_Click(object sender, RoutedEventArgs e)
+        private void btn_mp_Click(object sender, RoutedEventArgs e)
         {
             if (!File.Exists("iw5mp.exe"))
             {
                 MessageBox.Show("未找到iw5mp.exe！请检查你的游戏是否完整！", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
-            DisableAll();
             if (string.IsNullOrEmpty(textBox.Text))
             {
-                await StartProcess("iw5mp.exe", "");
+                StartProcess("iw5mp.exe", "");
             }
             else
             {
@@ -341,21 +334,20 @@ namespace loader_ui
                 {
                     textBox.Text = textBox.Text + ":27016";
                 }
-                await StartProcess("iw5mp.exe", "+server " + textBox.Text);
+                StartProcess("iw5mp.exe", "+server " + textBox.Text);
             }
         }
 
-        private async void btn_sp_Click(object sender, RoutedEventArgs e)
+        private void btn_sp_Click(object sender, RoutedEventArgs e)
         {
             if (!File.Exists("iw5sp.exe"))
             {
                 MessageBox.Show("未找到iw5sp.exe！请检查你的游戏是否完整！", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
-            DisableAll();
             if (string.IsNullOrEmpty(textBox.Text))
             {
-                await StartProcess("iw5sp.exe", "");
+                StartProcess("iw5sp.exe", "");
             }
             else
             {
@@ -363,7 +355,7 @@ namespace loader_ui
                 {
                     textBox.Text = textBox.Text.Split(new char[] { ':' }, 2)[0];
                 }
-                await StartProcess("iw5sp.exe", "+server " + textBox.Text);
+                StartProcess("iw5sp.exe", "+server " + textBox.Text);
             }
         }
 
@@ -382,6 +374,14 @@ namespace loader_ui
         private void textBox_LostFocus(object sender, RoutedEventArgs e)
         {
             CheckIp(textBox.Text);
+        }
+
+        private void MetroWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (!canclose)
+            {
+                e.Cancel = true;
+            }
         }
     }
 }

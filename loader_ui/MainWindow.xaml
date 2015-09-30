@@ -6,7 +6,7 @@
         xmlns:controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
         xmlns:local="clr-namespace:loader_ui"
         mc:Ignorable="d"
-        Title="Super TeknoMW3 1.0.0" Height="382.72" Width="525" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Loaded="MetroWindow_Loaded" Icon="logo.ico">
+        Title="Super TeknoMW3 1.0.0" Height="382.72" Width="525" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Loaded="MetroWindow_Loaded" Icon="logo.ico" Closing="MetroWindow_Closing">
     <Grid>
         <Grid Margin="0,0,0,24">
             <StackPanel HorizontalAlignment="Center" Height="293" VerticalAlignment="Top" Width="499" Margin="15,27,5,0">
