@@ -50,44 +50,69 @@ namespace loader_ui
             }
             catch (Exception)
             {
-                MessageBox.Show("无法载入配置文件！请检查是否有足够的权限读取和修改此文件。", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("启动器读不了配置文件惹！阁下是不是加了访问权限呢？", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                 Close();
             }
-
+            try
+            {
+                InitDeleteFakeFile();
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("启动器出错了呢，请阁下检查一下游戏根目录有没有以前版本的启动器和其他乱七八糟的文件呢，如果有的话先清理一下吧。", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                Close();
+            }
             label.Content = "检查更新...";
             try
             {
-                string version = "1.0.0";
-                string newversion = await CheckUpdate.GetVersion();
-
-                if (!version.Equals(newversion))
+                if (await CheckUpdate.CheckVersion("1.1.0"))
                 {
-                    MessageBoxResult result = MessageBox.Show("检测到新版本：" + newversion + "！你是否想下载更新？", "提示", MessageBoxButton.YesNo, MessageBoxImage.Information);
-                    if (result == MessageBoxResult.Yes)
-                    {
-                        Process.Start("http://bbs.3dmgame.com/thread-4461802-1-1.html");
-                        Close();
-                    }
-                    else
-                    {
-                        label.Content = "我们建议你及时升级新版本以获得最佳体验！";
-                        probar.IsIndeterminate = false;
-                    }
+                    MessageBoxResult result = MessageBox.Show("检测到新版本：" + CheckUpdate.version + "！请阁下先去下载新的版本。", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
+                    Process.Start("http://bbs.3dmgame.com/thread-5030431-1-1.html");
+                    Close();
                 }
                 else
                 {
-                    label.Content = "就绪";
+                    label.Content = "准备就绪了呢";
                     probar.IsIndeterminate = false;
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                label.Content = "检查更新失败:" + ex.Message;
+                label.Content = "检查更新失败了%>_<%，请阁下亲自到3DM看看吧。";
+                Process.Start("http://bbs.3dmgame.com/thread-5030431-1-1.html");
                 probar.IsIndeterminate = false;
             }
             finally
             {
                 EnableAll();
+            }
+        }
+
+        private void InitDeleteFakeFile()
+        {
+            string[] _fakefiles = new string[]
+            {
+                // SB TK Files
+                "client.wyc",
+                "TeknoMW3.exe",
+                "TeknoMW3_Update.exe",
+                "devraw\\video\\startup.bik",
+
+                //Other
+                "开始游戏.exe",
+                "开始游戏1.exe",
+                "开始游戏2.exe",
+                "d3d9.dll",
+                "lpk.dll"
+            };
+
+            foreach (var item in _fakefiles)
+            {
+                if (File.Exists(item))
+                {
+                    File.Delete(item);
+                }
             }
         }
 
@@ -105,18 +130,9 @@ namespace loader_ui
                     profile.Name = ini.GetSetting("Settings", "Name");
                     if ((string.IsNullOrEmpty(profile.Name) || string.IsNullOrWhiteSpace(profile.Name)) || (profile.Name.Length > 15 || profile.Name.Length < 3))
                     {
-                        profile.Name = "CHN_TeknoPlayer";
+                        profile.Name = "Futa's Pet";
                         NeedChange = true;
                     }
-
-                    //profile.ID = Convert.ToInt64(ini.GetSetting("Settings", "ID"));
-                    //if (string.IsNullOrWhiteSpace(profile.ID.ToString()) || profile.ID.ToString() == "0")
-                    //{
-                    //    var low = (long)rng.Next(0x1000, 0xFFFF);
-                    //    var high = (long)rng.Next(0x1000, 0xFFFF);
-                    //    profile.ID = Convert.ToInt64(low + string.Empty + high);
-                    //    isChanged = true;
-                    //}
 
                     profile.FOV = Convert.ToInt32(ini.GetSetting("Settings", "FOV"));
                     if (profile.FOV > 90 || profile.FOV < 65)
@@ -128,7 +144,7 @@ namespace loader_ui
                     profile.Clantag = ini.GetSetting("Settings", "Clantag");
                     if (string.IsNullOrWhiteSpace(profile.Clantag) || profile.Clantag.Length > 4)
                     {
-                        profile.Clantag = "SXXM";
+                        profile.Clantag = "^1CN";
                         AutoChanged = true;
                     }
 
@@ -139,25 +155,9 @@ namespace loader_ui
                         AutoChanged = true;
                     }
 
-                    string showconsole = ini.GetSetting("Settings", "ShowConsole");
-                    if (string.IsNullOrEmpty(showconsole))
-                    {
-                        profile.ShowConsole = false;
-                        AutoChanged = true;
-                        goto LABEL_001;
-                    }
-                    profile.ShowConsole = Convert.ToBoolean(showconsole);
-                    if (profile.ShowConsole == true)
-                    {
-                        profile.ShowConsole = false;
-                        AutoChanged = true;
-                    }
-
-                LABEL_001:
-
                     if (NeedChange)
                     {
-                        MessageBox.Show("你的玩家名称似乎有问题，请重新调整你的玩家信息。", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        MessageBox.Show("你的玩家名不符合规范哦，请先修改一下。", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
                         Settings st = new Settings(profile);
                         st.ShowDialog();
                         UpdateProfile();
@@ -167,18 +167,18 @@ namespace loader_ui
                         ini.AddSetting("Settings", "FOV", profile.FOV.ToString());
                         ini.AddSetting("Settings", "Clantag", profile.Clantag);
                         ini.AddSetting("Settings", "Title", profile.Title);
-                        ini.AddSetting("Settings", "ShowConsole", profile.ShowConsole.ToString().ToLower());
+                        ini.AddSetting("Settings", "Maxfps", "0");
 
                         ini.SaveSettings();
                     }
                     else
                     {
-                        textBlock.Text = "欢迎！" + profile.Name;
+                        textBlock.Text = "欢迎阁下！" + profile.Name;
                     }
                 }
                 else
                 {
-                    MessageBox.Show("未检测到配置文件，你需要先设置你的玩家信息。", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show("配置文件不存在呢，请阁下先设置一下你的玩家信息吧。", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
                     CreateNewProfile();
 
                     Settings st = new Settings(profile);
@@ -189,7 +189,7 @@ namespace loader_ui
             catch (Exception)
             {
                 File.Delete("teknogods.ini");
-                MessageBox.Show("读取配置文件时遇到问题，你的配置文件可能已损坏，请重新调整你的玩家信息。", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("启动器读取阁下的配置文件的时候出问题了%>_<%，还请阁下重新设置一下吧。", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
                 CreateNewProfile();
 
                 Settings st = new Settings(profile);
@@ -200,15 +200,10 @@ namespace loader_ui
 
         private void CreateNewProfile()
         {
-            var low = (long)rng.Next(0x1000, 0xFFFF);
-            var high = (long)rng.Next(0x1000, 0xFFFF);
-
-            profile.Name = "CHN_TeknoPlayer";
-            //profile.ID = Convert.ToInt64(low + string.Empty + high);
+            profile.Name = "Futa's Pet";
             profile.FOV = 75;
-            profile.Clantag = "SXXM";
+            profile.Clantag = "^1CN";
             profile.Title = "^5SuperTeknoMW3";
-            profile.ShowConsole = false;
 
             try
             {
@@ -216,16 +211,15 @@ namespace loader_ui
                 {
                     "[Settings]",
                     "Name=" + profile.Name,
-                    //"ID=" + profile.ID,
                     "FOV=" + profile.FOV,
                     "Clantag=" + profile.Clantag,
                     "Title=" + profile.Title,
-                    "ShowConsole=" + profile.ShowConsole.ToString().ToLower()
+                    "Maxfps=" + 0
                 });
             }
             catch (Exception)
             {
-                MessageBox.Show("创建配置文件失败！请检查磁盘是否有写保护，以及是否有写入权限！", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("创建配置文件出现问题了，阁下给游戏设置只读了么？", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                 Close();
             }
         }
@@ -255,7 +249,7 @@ namespace loader_ui
         private async void StartProcess(string proc, string arguements)
         {
             probar.IsIndeterminate = true;
-            label.Content = "游戏运行中...";
+            label.Content = "游戏正在运行desu...";
             canclose = false;
             DisableAll();
             try
@@ -265,13 +259,13 @@ namespace loader_ui
             }
             catch (Exception)
             {
-                MessageBox.Show("游戏启动失败！请检查游戏文件是否可用，并且已正确安装联机破解！");
+                MessageBox.Show("游戏打开失败了，阁下的游戏貌似有问题呢，请重新安装下破解吧。", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             finally
             {
                 EnableAll();
                 probar.IsIndeterminate = false;
-                label.Content = "就绪";
+                label.Content = "准备就绪了呢";
                 canclose = true;
             }
         }
@@ -319,10 +313,10 @@ namespace loader_ui
 
         private void btn_donate_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("SuperTeknoMW3 的开发以及 SXXM 服务器的运行离不开你的支持！\n" +
-                "你可以通过捐赠的方式来维持 SuperTeknoMW3 的开发和 SXXM 服务器的运行\n\n" +
-                "支付宝：15807770106\n\n" +
-                "如果您有宝贵的意见与建议，欢迎与我们交流！\nQQ群：195343722", "捐赠", MessageBoxButton.OK, MessageBoxImage.Information);
+            MessageBox.Show("感谢阁下点开了这里\n" +
+                "SuperTeknoMW3和FUTA服务器上的插件都是A2ON大大制作的说\n\n" +
+                "支付宝：18754253278\n\n" +
+                "A2ON很希望和阁下一起玩耍的说！\nQQ群：161151287", "捐赠", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private void btn_github_Click(object sender, RoutedEventArgs e)
@@ -340,7 +334,7 @@ namespace loader_ui
         {
             if (!File.Exists("iw5mp.exe"))
             {
-                MessageBox.Show("未找到iw5mp.exe！请检查你的游戏是否完整！", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("游戏打开失败了，阁下的游戏貌似有问题呢，请重新安装下破解吧。", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
             if (string.IsNullOrEmpty(textBox.Text))
@@ -361,7 +355,7 @@ namespace loader_ui
         {
             if (!File.Exists("iw5sp.exe"))
             {
-                MessageBox.Show("未找到iw5sp.exe！请检查你的游戏是否完整！", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("游戏打开失败了，阁下的游戏貌似有问题呢，请重新安装下破解吧。", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
             if (string.IsNullOrEmpty(textBox.Text))
@@ -374,7 +368,7 @@ namespace loader_ui
                 {
                     textBox.Text = textBox.Text.Split(new char[] { ':' }, 2)[0];
                 }
-                StartProcess("iw5sp.exe", "+server " + textBox.Text);
+                StartProcess("iw5sp.exe", "+server " + textBox.Text + ":0");
             }
         }
 
@@ -386,7 +380,7 @@ namespace loader_ui
             label.Content = "更新配置文件...";
             LoadProfile();
             await Task.Delay(1000);
-            label.Content = "就绪";
+            label.Content = "准备就绪了呢";
             probar.IsIndeterminate = false;
         }
 

@@ -6,13 +6,13 @@
         xmlns:local="clr-namespace:loader_ui"
         xmlns:controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
         mc:Ignorable="d"
-        Title="Help and About" Height="360.34" Width="409.632" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" WindowStyle="ToolWindow" Icon="logo.ico">
+        Title="帮助" Height="360.34" Width="409.632" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" WindowStyle="ToolWindow" Icon="logo.ico">
     <Grid>
         <TextBlock x:Name="textblock1" HorizontalAlignment="Left" TextWrapping="Wrap" Text="Super TeknoMW3 超级 TeknoMW3 载入器" VerticalAlignment="Top" Margin="10,10,0,0" Height="27" Width="382" FontSize="16" FontFamily="Microsoft YaHei UI Light"/>
         <StackPanel Margin="10,289,10,0" Height="40" VerticalAlignment="Top">
             <Button x:Name="button" Content="关闭" FontSize="14.667" FontFamily="Microsoft YaHei UI Light" Click="button_Click"/>
         </StackPanel>
-        <TextBox x:Name="textBox" HorizontalAlignment="Left" Height="247" TextWrapping="Wrap" Text="Super TeknoMW3 版本 1.0&#xA;制作 by A2ON&#xA;&#xA;当IP框为空时，多人游戏将直接使用列表模式&#xD;&#xA;单人/COOP游戏将以主机模式运行&#xA;&#xA;如果填写了服务器/主机的IP地址&#xD;&#xA;则会以客户端的模式运行游戏&#xD;&#xA;多人游戏可以进游戏后按F12来连接服务器&#xD;&#xA;单人游戏在点击 TeknoGods Coop 后直接连接主机&#xA;&#xA;当多人游戏服务器列表不可用时&#xD;&#xA;你可以尝试以下服务器地址&#xD;&#xA;直接输入到地址框中，由 SXXM 服务器提供：&#xA;多模式竞技服：&#xA;115.29.32.37:24001&#xA;狙击服（包含一击必杀mod）：&#xA;115.29.32.37:32001&#xA;感染模式（CHINA Magic Infect）：&#xA;115.29.32.37:33001&#xA;&#xA;你可以在&#xD;&#xA;http://bbs.3dmgame.com/thread-4461802-1-1.html&#xD;&#xA;下载本程序&#xA;&#xA;本程序的源代码可以在 https://github.com/A2ON 上找到&#xA;本程序符合 GPL V3 规范&#xA;&#xA;Super TeknoMW3 的诞生离不开&#xD;&#xA;TeknoMW3 开源项目和 MahApps.Metro 界面UI&#xA;&#xA;如果您想支持 Super TeknoMW3 的开发和 SXXM 服务器的运行&#xD;&#xA;欢迎给我们捐款！&#xA;捐赠账号：&#xA;支付宝：15807770106&#xA;&#xA;欢迎任何玩家联系我们，我们期待您的宝贵建议！&#xA;作者邮箱：a2on@9pclass.com&#xA;SXXM 服务器QQ群：195343722&#xA;" VerticalAlignment="Top" Width="384" Margin="10,37,0,0" FontFamily="Microsoft YaHei UI Light" IsReadOnly="True"/>
+        <TextBox x:Name="textBox" HorizontalAlignment="Left" Height="247" TextWrapping="Wrap" Text="Super TeknoMW3 版本 1.1&#xD;&#xA;重新制作的全新纯净TeknoMW3启动器，支持TeknoMW3 2.7.3.11&#xA;制作 by A2ON&#xA;&#xA;当IP框为空时，多人游戏将直接使用列表模式&#xA;单人/COOP游戏将以主机模式运行&#xA;&#xA;如果填写了服务器/主机的IP地址&#xA;则会以客户端的模式运行游戏&#xA;多人游戏可以进游戏后按F12来连接服务器&#xA;单人游戏在点击 TeknoGods Coop 后直接连接主机&#xD;&#xA;不是有效的服务器地址会发出提示&#xA;&#xA;当多人游戏服务器列表不可用时&#xA;你可以尝试以下服务器地址&#xA;直接输入到地址框中&#xA;多地图竞技服：&#xA;121.42.186.178:31001&#xA;Dome娱乐服：&#xA;121.42.186.178:38001&#xA;感染模式（CHINA Magic Infect）：&#xA;121.42.186.178:33006&#xA;&#xA;你可以在&#xA;http://bbs.3dmgame.com/thread-5030431-1-1.html&#xA;下载本程序&#xA;&#xA;本程序的源代码可以在 https://github.com/A2ON 上找到&#xA;本程序符合 GPL V3 规范&#xA;&#xA;Super TeknoMW3 的诞生离不开&#xA;TeknoMW3 开源项目和 MahApps.Metro 界面UI&#xA;&#xA;如果您想支持 Super TeknoMW3 的开发和服务器的运行&#xA;欢迎给我们捐款！&#xA;捐赠账号：&#xA;支付宝：18754253278&#xA;&#xA;欢迎任何玩家联系我们，我们期待您的宝贵建议！&#xA;作者邮箱：a2on@9pclass.com&#xA;QQ群：161151287&#xA;" VerticalAlignment="Top" Width="384" Margin="10,37,0,0" FontFamily="Microsoft YaHei UI Light" IsReadOnly="True"/>
 
     </Grid>
 </controls:MetroWindow>

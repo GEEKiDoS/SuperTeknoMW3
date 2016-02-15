@@ -4,21 +4,115 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Net.Http;
+using System.Reflection;
 
 namespace loader_lib
 {
     public static class CheckUpdate
     {
-        public static async Task<string> GetVersion()
+        public static string version = "";
+
+        public static async Task<bool> CheckVersion(string currectversion)
+        {
+            try
+            {
+                Task task = new Task(async () =>
+                {
+                    version = await GetVersion();
+                });
+
+                task.Start();
+
+                await Task.Delay(2000);
+
+                if (task.IsCompleted && version != "")
+                {
+                    if (version != currectversion)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+
+                await Task.Delay(2000);
+
+                if (task.IsCompleted && version != "")
+                {
+                    if (version != currectversion)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+
+                await Task.Delay(2000);
+
+                if (task.IsCompleted && version != "")
+                {
+                    if (version != currectversion)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+
+                await Task.Delay(2000);
+
+                if (task.IsCompleted && version != "")
+                {
+                    if (version != currectversion)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+
+                await Task.Delay(2000);
+
+                if (task.IsCompleted && version != "")
+                {
+                    if (version != currectversion)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    throw new Exception();
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        private static async Task<string> GetVersion()
         {
             try
             {
                 using (HttpClient http = new HttpClient())
                 {
-                    http.BaseAddress = new Uri("http://bbs.3dmgame.com/thread-4461802-1-1.html");
+                    http.BaseAddress = new Uri("http://121.42.186.178:80/version.html");
 
                     var request = new HttpRequestMessage();
-                    request.Headers.Add("User-Agent", "(Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2351.3 Safari/537.36");
+                    request.Headers.Add("GACG-Client", "SuperTeknoMW3");
                     request.Method = HttpMethod.Get;
 
                     var response = await http.SendAsync(request);
@@ -26,7 +120,9 @@ namespace loader_lib
 
                     string content = await response.Content.ReadAsStringAsync();
 
-                    return content.Substring(content.IndexOf("%VERSION:") + 9, content.Split(new string[] { "%VERSION:" }, 2, StringSplitOptions.RemoveEmptyEntries)[1].Split(new char[] { '%' }, 2)[0].Length);
+                    http.Dispose();
+
+                    return content;
                 }
             }
             catch (Exception)
