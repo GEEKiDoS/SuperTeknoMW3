@@ -26,27 +26,34 @@ namespace loader_ui
     {
         private Proflie profile;
         private Random rng = new Random();
+        private bool newuser = false;
         private bool canclose = true;
+        private bool cansp = true;
 
         public MainWindow()
         {
             InitializeComponent();
         }
 
-        private void btn_settings_Click(object sender, RoutedEventArgs e)
+        private async void btn_settings_Click(object sender, RoutedEventArgs e)
         {
             Settings settings = new Settings(profile);
             settings.ShowDialog();
             UpdateProfile();
+            await Task.Delay(1000);
+            label.Content = "准备就绪了呢";
+            probar.IsIndeterminate = false;
         }
 
         private async void MetroWindow_Loaded(object sender, RoutedEventArgs e)
         {
             DisableAll();
-            await Task.Delay(1000);
+            label.Content = "验证配置文件...";
+            probar.IsIndeterminate = true;
             try
             {
                 LoadProfile();
+                FileChecksun();
             }
             catch (Exception)
             {
@@ -62,25 +69,61 @@ namespace loader_ui
                 MessageBox.Show("启动器出错了呢，请阁下检查一下游戏根目录有没有以前版本的启动器和其他乱七八糟的文件呢，如果有的话先清理一下吧。", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                 Close();
             }
+            await Task.Delay(1000);
             label.Content = "检查更新...";
+            probar.IsIndeterminate = true;
             try
             {
-                if (await CheckUpdate.CheckVersion("1.1.0"))
+                await CheckUpdate.DoCheckUpdate(new Uri("http://superteknomw3-upgrade.daoapp.io/upgrade.html"));
+                string version = CheckUpdate.version;
+                string info = CheckUpdate.info;
+                bool isforcibly = CheckUpdate.isforcibly;
+
+                if (version != "1.1.3")
                 {
-                    MessageBoxResult result = MessageBox.Show("检测到新版本：" + CheckUpdate.version + "！请阁下先去下载新的版本。", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
-                    Process.Start("http://bbs.3dmgame.com/thread-5030431-1-1.html");
-                    Close();
+                    if (isforcibly)
+                    {
+                        MessageBoxResult result = MessageBox.Show("检测到新版本：" + CheckUpdate.version + "\n" + info + "\n\n请下载新版本后进行游戏！", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
+                        Process.Start("http://bbs.3dmgame.com/thread-5030431-1-1.html");
+                        Close();
+                    }
+                    else if (profile.SkipUpdate == false)
+                    {
+                        MessageBoxResult result = MessageBox.Show("检测到新版本：" + CheckUpdate.version + "\n" + info + "\n\n本次更新是非强制性的，是否立即下载新版本？", "提示", MessageBoxButton.YesNo, MessageBoxImage.Information);
+                        if (result == MessageBoxResult.Yes)
+                        {
+                            Process.Start("http://bbs.3dmgame.com/thread-5030431-1-1.html");
+                            Close();
+                        }
+                        else
+                        {
+                            profile.SkipUpdate = true;
+                            UpdateProfile();
+                            await Task.Delay(1000);
+                            label.Content = "准备就绪了呢";
+                            probar.IsIndeterminate = false;
+                        }
+                    }
                 }
                 else
                 {
                     label.Content = "准备就绪了呢";
                     probar.IsIndeterminate = false;
+
+                    if (newuser)
+                    {
+                        MessageBoxResult result = MessageBox.Show("阁下可能是第一次使用 SuperTeknoMW3 呢，本喵强烈建议你看一下使用帮助。\n是否立即查看？", "提示", MessageBoxButton.YesNo, MessageBoxImage.Information);
+                        if (result == MessageBoxResult.Yes)
+                        {
+                            Help help = new Help();
+                            help.ShowDialog();
+                        }
+                    }
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                label.Content = "检查更新失败了%>_<%，请阁下亲自到3DM看看吧。";
-                Process.Start("http://bbs.3dmgame.com/thread-5030431-1-1.html");
+                label.Content = ex.Message;
                 probar.IsIndeterminate = false;
             }
             finally
@@ -103,8 +146,6 @@ namespace loader_ui
                 "开始游戏.exe",
                 "开始游戏1.exe",
                 "开始游戏2.exe",
-                "d3d9.dll",
-                "lpk.dll"
             };
 
             foreach (var item in _fakefiles)
@@ -116,7 +157,44 @@ namespace loader_ui
             }
         }
 
-        private void LoadProfile()
+        private void FileChecksun()
+        {
+            string[] _reqfiles = new string[]
+            {
+                "binkw32.dll",
+                "steam_api.dll",
+                "TeknoMW3.dll",
+                "iw5mp.exe",
+                "VMProtectSDK32.dll",
+            };
+            string[] _spfiles = new string[]
+            {
+                "iw5sp.exe",
+                "TeknoMW3_SP.dll",
+            };
+
+            foreach (var item in _reqfiles)
+            {
+                if (!File.Exists(item))
+                {
+                    MessageBox.Show("请将本程序放入游戏根目录后运行！", "提示", MessageBoxButton.OK, MessageBoxImage.Error);
+                    Close();
+                    return;
+                }
+            }
+
+            foreach (var item in _spfiles)
+            {
+                if (!File.Exists(item))
+                {
+                    MessageBox.Show("你的游戏似乎是纯联机版，单人游戏将被禁用。如需进行单人游戏请下载完整版", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    cansp = false;
+                    return;
+                }
+            }
+        }
+
+        private async void LoadProfile()
         {
             try
             {
@@ -127,48 +205,177 @@ namespace loader_ui
                     IniParser ini = new IniParser("teknogods.ini");
                     profile = new Proflie();
 
-                    profile.Name = ini.GetSetting("Settings", "Name");
-                    if ((string.IsNullOrEmpty(profile.Name) || string.IsNullOrWhiteSpace(profile.Name)) || (profile.Name.Length > 15 || profile.Name.Length < 3))
+                    string _name = ini.GetSetting("Settings", "Name");
+                    if (string.IsNullOrWhiteSpace(_name) || _name.Length > 15 || _name.Length < 3)
                     {
-                        profile.Name = "Futa's Pet";
+                        profile.Name = "Futa Master";
                         NeedChange = true;
                     }
+                    else
+                    {
+                        profile.Name = _name;
+                    }
 
-                    profile.FOV = Convert.ToInt32(ini.GetSetting("Settings", "FOV"));
-                    if (profile.FOV > 90 || profile.FOV < 65)
+                    string _id = ini.GetSetting("Settings", "ID");
+                    if (string.IsNullOrWhiteSpace(_id) || _id.Length != 8)
+                    {
+                        if (Directory.Exists("dw"))
+                        {
+                            bool flag = false;
+                            string[] files = Directory.GetFiles("dw");
+                            foreach (var item in files)
+                            {
+                                string item2 = item.Replace("dw\\", "");
+                                if (item2.StartsWith("iw5_") && item2.EndsWith(".stat"))
+                                {
+                                    _id = item2.Substring(item2.Length - 13, 8).ToUpper();
+                                    flag = true;
+                                    break;
+                                }
+                            }
+                            if (!flag)
+                            {
+                                var id = Guid.NewGuid();
+                                _id = id.ToString().Substring(0, 8).ToUpper();
+                            }
+                        }
+                        else
+                        {
+                            var id = Guid.NewGuid();
+                            _id = id.ToString().Substring(0, 8).ToUpper(); 
+                        }
+                        profile.ID = _id;
+                    }
+                    else
+                    {
+                        profile.ID = _id;
+                    }
+
+                    string _fov = ini.GetSetting("Settings", "FOV");
+                    if (string.IsNullOrWhiteSpace(_fov))
                     {
                         profile.FOV = 75;
                         AutoChanged = true;
                     }
+                    else
+                    {
+                        try
+                        {
+                            if (Convert.ToInt32(_fov) >= 65 || Convert.ToInt32(_fov) <= 90)
+                            {
+                                profile.FOV = Convert.ToInt32(_fov);
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            profile.FOV = 75;
+                            AutoChanged = true;
+                        }
 
-                    profile.Clantag = ini.GetSetting("Settings", "Clantag");
-                    if (string.IsNullOrWhiteSpace(profile.Clantag) || profile.Clantag.Length > 4)
+                    }
+
+                    string _clantag = ini.GetSetting("Settings", "Clantag");
+                    if (string.IsNullOrWhiteSpace(_clantag) || _clantag.Length > 4)
                     {
                         profile.Clantag = "^1CN";
                         AutoChanged = true;
                     }
+                    else
+                    {
+                        profile.Clantag = _clantag;
+                    }
 
-                    profile.Title = ini.GetSetting("Settings", "Title");
-                    if (profile.Title.Length > 25)
+                    string _title = ini.GetSetting("Settings", "Title");
+                    if (string.IsNullOrWhiteSpace(_clantag) || _title.Length > 25)
                     {
                         profile.Title = "";
                         AutoChanged = true;
                     }
+                    else
+                    {
+                        profile.Title = _title;
+                    }
+
+                    string _showconsole = ini.GetSetting("Settings", "ShowConsole");
+                    if (string.IsNullOrWhiteSpace(_showconsole))
+                    {
+                        profile.ShowConsole = false;
+                        AutoChanged = true;
+                    }
+                    else
+                    {
+                        try
+                        {
+                            profile.SkipUpdate = Convert.ToBoolean(_showconsole);
+                        }
+                        catch (Exception)
+                        {
+                            profile.ShowConsole = false;
+                            AutoChanged = true;
+                        }
+                    }
+
+                    string _maxfps = ini.GetSetting("Settings", "Maxfps");
+                    if (string.IsNullOrWhiteSpace(_maxfps))
+                    {
+                        profile.Maxfps = 300;
+                        AutoChanged = true;
+                    }
+                    else
+                    {
+                        try
+                        {
+                            if (Convert.ToInt32(_maxfps) >= 30 || Convert.ToInt32(_maxfps) <= 300)
+                            {
+                                profile.Maxfps = Convert.ToInt32(_maxfps);
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            profile.Maxfps = 300;
+                            AutoChanged = true;
+                        }
+
+                    }
+
+                    string _skipupdate = ini.GetSetting("Settings", "SkipUpdate");
+                    if (string.IsNullOrWhiteSpace(_skipupdate))
+                    {
+                        profile.SkipUpdate = false;
+                        AutoChanged = true;
+                    }
+                    else
+                    {
+                        try
+                        {
+                            profile.SkipUpdate = Convert.ToBoolean(_skipupdate);
+                        }
+                        catch (Exception)
+                        {
+                            profile.SkipUpdate = false;
+                            AutoChanged = true;
+                        }
+                    }
 
                     if (NeedChange)
                     {
-                        MessageBox.Show("你的玩家名不符合规范哦，请先修改一下。", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        MessageBox.Show("你的玩家名不符合规范哦，请阁下先修改一下。", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
                         Settings st = new Settings(profile);
                         st.ShowDialog();
                         UpdateProfile();
+                        await Task.Delay(1000);
+                        label.Content = "准备就绪了呢";
+                        probar.IsIndeterminate = false;
                     }
                     else if (AutoChanged)
                     {
+                        ini.AddSetting("Settings", "ID", profile.ID);
                         ini.AddSetting("Settings", "FOV", profile.FOV.ToString());
                         ini.AddSetting("Settings", "Clantag", profile.Clantag);
                         ini.AddSetting("Settings", "Title", profile.Title);
-                        ini.AddSetting("Settings", "Maxfps", "0");
-
+                        ini.AddSetting("Settings", "ShowConsole", profile.ShowConsole.ToString().ToLower());
+                        ini.AddSetting("Settings", "Maxfps", profile.Maxfps.ToString());
+                        ini.AddSetting("Settings", "SkipUpdate", profile.SkipUpdate.ToString().ToLower());
                         ini.SaveSettings();
                     }
                     else
@@ -180,30 +387,41 @@ namespace loader_ui
                 {
                     MessageBox.Show("配置文件不存在呢，请阁下先设置一下你的玩家信息吧。", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
                     CreateNewProfile();
+                    newuser = true;
 
                     Settings st = new Settings(profile);
                     st.ShowDialog();
                     UpdateProfile();
+                    await Task.Delay(1000);
+                    label.Content = "准备就绪了呢";
+                    probar.IsIndeterminate = false;
                 }
             }
             catch (Exception)
             {
                 File.Delete("teknogods.ini");
-                MessageBox.Show("启动器读取阁下的配置文件的时候出问题了%>_<%，还请阁下重新设置一下吧。", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("启动器读取配置文件的时候出问题了%>_<%，还请阁下重新设置一下吧。", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
                 CreateNewProfile();
 
                 Settings st = new Settings(profile);
                 st.ShowDialog();
                 UpdateProfile();
+                await Task.Delay(1000);
+                label.Content = "准备就绪了呢";
+                probar.IsIndeterminate = false;
             }
         }
 
         private void CreateNewProfile()
         {
-            profile.Name = "Futa's Pet";
+            profile.Name = "Futa Master";
+            profile.ID = Guid.NewGuid().ToString().Substring(0, 8).ToUpper();
             profile.FOV = 75;
             profile.Clantag = "^1CN";
-            profile.Title = "^5SuperTeknoMW3";
+            profile.Title = "SuperTeknoMW3";
+            profile.ShowConsole = false;
+            profile.Maxfps = 300;
+            profile.SkipUpdate = false;
 
             try
             {
@@ -211,10 +429,13 @@ namespace loader_ui
                 {
                     "[Settings]",
                     "Name=" + profile.Name,
+                    "ID=" + profile.ID,
                     "FOV=" + profile.FOV,
                     "Clantag=" + profile.Clantag,
                     "Title=" + profile.Title,
-                    "Maxfps=" + 0
+                    "ShowConsole=" + profile.ShowConsole,
+                    "Maxfps=" + profile.Maxfps,
+                    "SkipUpdate="+profile.SkipUpdate
                 });
             }
             catch (Exception)
@@ -243,7 +464,10 @@ namespace loader_ui
             btn_github.IsEnabled = true;
             btn_mp.IsEnabled = true;
             btn_settings.IsEnabled = true;
-            btn_sp.IsEnabled = true;
+            if (cansp == true)
+            {
+                btn_sp.IsEnabled = true;
+            }
         }
 
         private async void StartProcess(string proc, string arguements)
@@ -281,7 +505,7 @@ namespace loader_ui
                     port = Convert.ToInt32(domain.Split(new char[] { ':' }, 2)[1]);
                     if (port > 65536 || port < 1)
                     {
-                        port = 27016;
+                        port = 26000;
                     }
 
                     UriHostNameType result = Uri.CheckHostName(domain.Split(new char[] { ':' }, 2)[0]);
@@ -314,9 +538,9 @@ namespace loader_ui
         private void btn_donate_Click(object sender, RoutedEventArgs e)
         {
             MessageBox.Show("感谢阁下点开了这里\n" +
-                "SuperTeknoMW3和FUTA服务器上的插件都是A2ON大大制作的说\n\n" +
-                "支付宝：18754253278\n\n" +
-                "A2ON很希望和阁下一起玩耍的说！\nQQ群：161151287", "捐赠", MessageBoxButton.OK, MessageBoxImage.Information);
+                "SuperTeknoMW3和FUTA服务器离不开阁下的支持呢\n\n" +
+                "如果阁下希望为服务器塞钱的话，可以通过以下方式：\n支付宝：18754253278\n微信：the_a2on\n\n" +
+                "你也可以加入我们的QQ群哦\nQQ群：498440812", "捐赠", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private void btn_github_Click(object sender, RoutedEventArgs e)
@@ -374,14 +598,11 @@ namespace loader_ui
 
 
 
-        public async void UpdateProfile()
+        public void UpdateProfile()
         {
             probar.IsIndeterminate = true;
             label.Content = "更新配置文件...";
             LoadProfile();
-            await Task.Delay(1000);
-            label.Content = "准备就绪了呢";
-            probar.IsIndeterminate = false;
         }
 
         private void textBox_LostFocus(object sender, RoutedEventArgs e)

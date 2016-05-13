@@ -1,100 +1,51 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
+using System.Net;
+using System.Net.NetworkInformation;
 using System.Net.Http;
-using System.Reflection;
 
 namespace loader_lib
 {
     public static class CheckUpdate
     {
         public static string version = "";
+        public static string info = "";
+        public static bool isforcibly = false;
 
-        public static async Task<bool> CheckVersion(string currectversion)
+        public static async Task DoCheckUpdate(Uri address)
         {
             try
             {
-                Task task = new Task(async () =>
+                string result = null;
+
+                Task task = new Task(async ()=> 
                 {
-                    version = await GetVersion();
+                    result = await GetUpgradeInfo(address);
                 });
 
                 task.Start();
-
-                await Task.Delay(2000);
-
-                if (task.IsCompleted && version != "")
+                
+                for (int i = 0; i <= 4; i++)
                 {
-                    if (version != currectversion)
+                    await Task.Delay(1000);
+                    if (i < 4)
                     {
-                        return true;
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                }
+                        if (task.IsCompleted)
+                        {
+                            string temp = result;
 
-                await Task.Delay(2000);
+                            var ts = temp.Split(new char[] { '-' }, 3);
+                            version = ts[0];
+                            isforcibly = Convert.ToBoolean(ts[1]);
+                            info = ts[2].Replace("/", Environment.NewLine);
 
-                if (task.IsCompleted && version != "")
-                {
-                    if (version != currectversion)
-                    {
-                        return true;
+                            break;
+                        }
+                        else if (i == 4)
+                        {
+                            throw new Exception("检查更新失败了呢！原因是连接升级服务器超时，请检查你的网络连接和防火墙！");
+                        }
                     }
-                    else
-                    {
-                        return false;
-                    }
-                }
-
-                await Task.Delay(2000);
-
-                if (task.IsCompleted && version != "")
-                {
-                    if (version != currectversion)
-                    {
-                        return true;
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                }
-
-                await Task.Delay(2000);
-
-                if (task.IsCompleted && version != "")
-                {
-                    if (version != currectversion)
-                    {
-                        return true;
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                }
-
-                await Task.Delay(2000);
-
-                if (task.IsCompleted && version != "")
-                {
-                    if (version != currectversion)
-                    {
-                        return true;
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                }
-                else
-                {
-                    throw new Exception();
                 }
             }
             catch (Exception)
@@ -103,24 +54,16 @@ namespace loader_lib
             }
         }
 
-        private static async Task<string> GetVersion()
+        private static async Task<string> GetUpgradeInfo(Uri address)
         {
             try
             {
                 using (HttpClient http = new HttpClient())
                 {
-                    http.BaseAddress = new Uri("http://121.42.186.178:80/version.html");
-
-                    var request = new HttpRequestMessage();
-                    request.Headers.Add("GACG-Client", "SuperTeknoMW3");
-                    request.Method = HttpMethod.Get;
-
-                    var response = await http.SendAsync(request);
+                    var response = await http.GetAsync(address);
                     response.EnsureSuccessStatusCode();
 
                     string content = await response.Content.ReadAsStringAsync();
-
-                    http.Dispose();
 
                     return content;
                 }

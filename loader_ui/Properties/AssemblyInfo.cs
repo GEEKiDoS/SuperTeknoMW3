@@ -8,9 +8,9 @@ using System.Windows;
 // 控制。更改这些特性值可修改
 // 与程序集关联的信息。
 [assembly: AssemblyTitle("SuperTeknoMW3")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("一个纯净的 TeknoMW3 启动器，支持 TeknoMW3 2.7.3.11")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("QQ群：161151287")]
+[assembly: AssemblyCompany("QQ群：498440812")]
 [assembly: AssemblyProduct("SuperTeknoMW3")]
 [assembly: AssemblyCopyright("Copyright © A2ON 2015,2016.")]
 [assembly: AssemblyTrademark("")]
@@ -51,5 +51,5 @@ using System.Windows;
 //可以指定所有这些值，也可以使用“生成号”和“修订号”的默认值，
 // 方法是按如下所示使用“*”: :
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.1.0.0")]
-[assembly: AssemblyFileVersion("1.1.0.0")]
+[assembly: AssemblyVersion("1.1.3.0")]
+[assembly: AssemblyFileVersion("1.1.3.0")]

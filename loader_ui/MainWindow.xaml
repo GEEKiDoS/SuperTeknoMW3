@@ -6,7 +6,7 @@
         xmlns:controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
         xmlns:local="clr-namespace:loader_ui"
         mc:Ignorable="d"
-        Title="Super TeknoMW3 1.1.0" Height="382.72" Width="525" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Loaded="MetroWindow_Loaded" Icon="logo.ico" Closing="MetroWindow_Closing">
+        Title="Super TeknoMW3 1.1.3 Limit Edition" Height="382.72" Width="525" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Loaded="MetroWindow_Loaded" Icon="logo.ico" Closing="MetroWindow_Closing">
     <Grid>
         <Grid Margin="0,0,0,41">
             <StackPanel HorizontalAlignment="Center" Height="284" VerticalAlignment="Top" Width="494" Margin="15,27,10,0">
@@ -15,7 +15,7 @@
                         <Setter Property="VerticalAlignment" Value="Center" />
                     </Style>
                 </StackPanel.Resources>
-                <TextBlock x:Name="textBlock" TextWrapping="Wrap" Text="欢迎阁下！" Margin="0,0,0,8" Height="47" FontSize="32" FontFamily="Microsoft YaHei UI Light"/>
+                <TextBlock x:Name="textBlock" TextWrapping="Wrap" Text="欢迎阁下！" Margin="10,0,10,8" Height="47" FontSize="32" FontFamily="Microsoft YaHei UI Light"/>
                 <StackPanel Height="86">
                     <TextBlock x:Name="textBlock1" TextWrapping="Wrap" Text="服务器或主机地址及端口 (仅用于连接特定服务器或主机)：" Height="33" Margin="78,0,80,0" FontFamily="Microsoft YaHei UI Light" FontSize="12.710"/>
                     <TextBox x:Name="textBox" Height="37" TextWrapping="Wrap" Text="" Margin="78,0,90,0" Width="Auto" VerticalAlignment="Stretch" FontSize="26.667" FontFamily="Microsoft YaHei UI Light" LostFocus="textBox_LostFocus"/>
@@ -59,7 +59,7 @@
         </Grid>
         <Grid Margin="0,318,0,0">
             <ProgressBar x:Name="probar" VerticalAlignment="Center" Height="26" IsIndeterminate="True" Margin="0,10,0,0"/>
-            <Label x:Name="label" Content="初始化..." HorizontalAlignment="Left" Width="519" Margin="0,10,0,0"/>
+            <Label x:Name="label" Content="正在为首次使用做准备..." HorizontalAlignment="Left" Width="519" Margin="0,10,0,0"/>
         </Grid>
     </Grid>
 </controls:MetroWindow>

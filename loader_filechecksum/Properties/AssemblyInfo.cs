@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // 有关程序集的一般信息由以下
 // 控制。更改这些特性值可修改
 // 与程序集关联的信息。
-[assembly: AssemblyTitle("SuperTeknoMW3 Library")]
-[assembly: AssemblyDescription("A library from SuperTeknoMW3")]
+[assembly: AssemblyTitle("loader_filechecksum")]
+[assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("QQ群：498440812")]
-[assembly: AssemblyProduct("SuperTeknoMW3")]
-[assembly: AssemblyCopyright("Copyright © A2ON 2015,2016")]
+[assembly: AssemblyCompany("")]
+[assembly: AssemblyProduct("loader_filechecksum")]
+[assembly: AssemblyCopyright("Copyright ©  2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // 如果此项目向 COM 公开，则下列 GUID 用于类型库的 ID
-[assembly: Guid("a7a65399-6520-4a2c-82cc-98401e746856")]
+[assembly: Guid("ffb88e66-b275-4397-a0a1-fdbb9d347be6")]
 
 // 程序集的版本信息由下列四个值组成: 
 //
@@ -32,5 +32,5 @@ using System.Runtime.InteropServices;
 //可以指定所有这些值，也可以使用“生成号”和“修订号”的默认值，
 // 方法是按如下所示使用“*”: :
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.1.3.0")]
-[assembly: AssemblyFileVersion("1.1.3.0")]
+[assembly: AssemblyVersion("1.0.0.0")]
+[assembly: AssemblyFileVersion("1.0.0.0")]
