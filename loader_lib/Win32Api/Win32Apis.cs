@@ -3,243 +3,57 @@ using System.Runtime.InteropServices;
 
 namespace loader_lib
 {
-    /// <summary>
-    /// TODO: Update summary.
-    /// </summary>
     public static class Win32Apis
     {
-        #region Delegates
-
-        /// <summary>
-        /// The thread proc.
-        /// </summary>
-        /// <param name="param">
-        /// The param.
-        /// </param>
         public delegate int ThreadProc(IntPtr param);
 
-        #endregion
-
-        #region Enums
-
-        /// <summary>
-        /// The allocation type.
-        /// </summary>
         [Flags]
         public enum AllocationType : uint
         {
-            /// <summary>
-            /// The commit.
-            /// </summary>
             COMMIT = 0x1000,
-
-            /// <summary>
-            /// The reserve.
-            /// </summary>
             RESERVE = 0x2000,
-
-            /// <summary>
-            /// The reset.
-            /// </summary>
             RESET = 0x80000,
-
-            /// <summary>
-            /// The larg e_ pages.
-            /// </summary>
             LARGE_PAGES = 0x20000000,
-
-            /// <summary>
-            /// The physical.
-            /// </summary>
             PHYSICAL = 0x400000,
-
-            /// <summary>
-            /// The to p_ down.
-            /// </summary>
             TOP_DOWN = 0x100000,
-
-            /// <summary>
-            /// The writ e_ watch.
-            /// </summary>
             WRITE_WATCH = 0x200000
         }
 
-        /// <summary>
-        /// The memory protection.
-        /// </summary>
         [Flags]
         public enum MemoryProtection : uint
         {
-            /// <summary>
-            /// The execute.
-            /// </summary>
             EXECUTE = 0x10,
-
-            /// <summary>
-            /// The execut e_ read.
-            /// </summary>
             EXECUTE_READ = 0x20,
-
-            /// <summary>
-            /// The execut e_ readwrite.
-            /// </summary>
             EXECUTE_READWRITE = 0x40,
-
-            /// <summary>
-            /// The execut e_ writecopy.
-            /// </summary>
             EXECUTE_WRITECOPY = 0x80,
-
-            /// <summary>
-            /// The noaccess.
-            /// </summary>
             NOACCESS = 0x01,
-
-            /// <summary>
-            /// The readonly.
-            /// </summary>
             READONLY = 0x02,
-
-            /// <summary>
-            /// The readwrite.
-            /// </summary>
             READWRITE = 0x04,
-
-            /// <summary>
-            /// The writecopy.
-            /// </summary>
             WRITECOPY = 0x08,
-
-            /// <summary>
-            /// The guar d_ modifierflag.
-            /// </summary>
             GUARD_Modifierflag = 0x100,
-
-            /// <summary>
-            /// The nocach e_ modifierflag.
-            /// </summary>
             NOCACHE_Modifierflag = 0x200,
-
-            /// <summary>
-            /// The writecombin e_ modifierflag.
-            /// </summary>
             WRITECOMBINE_Modifierflag = 0x400
         }
 
-        /// <summary>
-        /// The protection.
-        /// </summary>
         public enum Protection
         {
-            /// <summary>
-            /// The pag e_ noaccess.
-            /// </summary>
             PAGE_NOACCESS = 0x01,
-
-            /// <summary>
-            /// The pag e_ readonly.
-            /// </summary>
             PAGE_READONLY = 0x02,
-
-            /// <summary>
-            /// The pag e_ readwrite.
-            /// </summary>
             PAGE_READWRITE = 0x04,
-
-            /// <summary>
-            /// The pag e_ writecopy.
-            /// </summary>
             PAGE_WRITECOPY = 0x08,
-
-            /// <summary>
-            /// The pag e_ execute.
-            /// </summary>
             PAGE_EXECUTE = 0x10,
-
-            /// <summary>
-            /// The pag e_ execut e_ read.
-            /// </summary>
             PAGE_EXECUTE_READ = 0x20,
-
-            /// <summary>
-            /// The pag e_ execut e_ readwrite.
-            /// </summary>
             PAGE_EXECUTE_READWRITE = 0x40,
-
-            /// <summary>
-            /// The pag e_ execut e_ writecopy.
-            /// </summary>
             PAGE_EXECUTE_WRITECOPY = 0x80,
-
-            /// <summary>
-            /// The pag e_ guard.
-            /// </summary>
             PAGE_GUARD = 0x100,
-
-            /// <summary>
-            /// The pag e_ nocache.
-            /// </summary>
             PAGE_NOCACHE = 0x200,
-
-            /// <summary>
-            /// The pag e_ writecombine.
-            /// </summary>
             PAGE_WRITECOMBINE = 0x400
         }
 
-        #endregion
-
-        #region Public Methods
-
-        /// <summary>
-        /// The close handle.
-        /// </summary>
-        /// <param name="hObject">
-        /// The h object.
-        /// </param>
-        /// <returns>
-        /// The close handle.
-        /// </returns>
         [DllImport("kernel32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool CloseHandle(IntPtr hObject);
 
-        /// <summary>
-        /// The create process.
-        /// </summary>
-        /// <param name="lpApplicationName">
-        /// The lp application name.
-        /// </param>
-        /// <param name="lpCommandLine">
-        /// The lp command line.
-        /// </param>
-        /// <param name="lpProcessAttributes">
-        /// The lp process attributes.
-        /// </param>
-        /// <param name="lpThreadAttributes">
-        /// The lp thread attributes.
-        /// </param>
-        /// <param name="bInheritHandles">
-        /// The b inherit handles.
-        /// </param>
-        /// <param name="dwCreationFlags">
-        /// The dw creation flags.
-        /// </param>
-        /// <param name="lpEnvironment">
-        /// The lp environment.
-        /// </param>
-        /// <param name="lpCurrentDirectory">
-        /// The lp current directory.
-        /// </param>
-        /// <param name="lpStartupInfo">
-        /// The lp startup info.
-        /// </param>
-        /// <param name="lpProcessInformation">
-        /// The lp process information.
-        /// </param>
-        /// <returns>
-        /// The create process.
-        /// </returns>
         [DllImport("kernel32.dll")]
         public static extern bool CreateProcess(
             string lpApplicationName,
@@ -253,32 +67,6 @@ namespace loader_lib
             ref STARTUPINFO lpStartupInfo,
             out PROCESS_INFORMATION lpProcessInformation);
 
-        /// <summary>
-        /// The create remote thread.
-        /// </summary>
-        /// <param name="hProcess">
-        /// The h process.
-        /// </param>
-        /// <param name="lpThreadAttribute">
-        /// The lp thread attribute.
-        /// </param>
-        /// <param name="dwStackSize">
-        /// The dw stack size.
-        /// </param>
-        /// <param name="lpStartAddress">
-        /// The lp start address.
-        /// </param>
-        /// <param name="lpParameter">
-        /// The lp parameter.
-        /// </param>
-        /// <param name="dwCreationFlags">
-        /// The dw creation flags.
-        /// </param>
-        /// <param name="lpThreadId">
-        /// The lp thread id.
-        /// </param>
-        /// <returns>
-        /// </returns>
         [DllImport("kernel32.dll", SetLastError = true)]
         public static extern IntPtr CreateRemoteThread(
             IntPtr hProcess,
@@ -289,215 +77,45 @@ namespace loader_lib
             uint dwCreationFlags,
             IntPtr lpThreadId);
 
-        /// <summary>
-        /// The get module handle.
-        /// </summary>
-        /// <param name="lpModuleName">
-        /// The lp module name.
-        /// </param>
-        /// <returns>
-        /// </returns>
         [DllImport("kernel32.dll", CharSet = CharSet.Auto)]
         public static extern IntPtr GetModuleHandle(string lpModuleName);
 
-        /// <summary>
-        /// The get proc address.
-        /// </summary>
-        /// <param name="hModule">
-        /// The h module.
-        /// </param>
-        /// <param name="procName">
-        /// The proc name.
-        /// </param>
-        /// <returns>
-        /// </returns>
         [DllImport("kernel32", CharSet = CharSet.Ansi, ExactSpelling = true, SetLastError = true)]
-        public static extern UIntPtr GetProcAddress(IntPtr hModule, string procName);
+        public static extern IntPtr GetProcAddress(IntPtr hModule, string procName);
 
-        /// <summary>
-        /// The get thread context.
-        /// </summary>
-        /// <param name="hThread">
-        /// The h thread.
-        /// </param>
-        /// <param name="lpContext">
-        /// The lp context.
-        /// </param>
-        /// <returns>
-        /// The get thread context.
-        /// </returns>
         [DllImport("kernel32.dll")]
         public static extern bool GetThreadContext(IntPtr hThread, ref CONTEXT lpContext);
 
-        /// <summary>
-        /// The open process.
-        /// </summary>
-        /// <param name="dwDesiredAccess">
-        /// The dw desired access.
-        /// </param>
-        /// <param name="bInheritHandle">
-        /// The b inherit handle.
-        /// </param>
-        /// <param name="dwProcessId">
-        /// The dw process id.
-        /// </param>
-        /// <returns>
-        /// </returns>
         [DllImport("kernel32.dll")]
         public static extern IntPtr OpenProcess(int dwDesiredAccess, bool bInheritHandle, int dwProcessId);
 
-        /// <summary>
-        /// The read process memory.
-        /// </summary>
-        /// <param name="hProcess">
-        /// The h process.
-        /// </param>
-        /// <param name="lpBaseAddress">
-        /// The lp base address.
-        /// </param>
-        /// <param name="lpBuffer">
-        /// The lp buffer.
-        /// </param>
-        /// <param name="dwSize">
-        /// The dw size.
-        /// </param>
-        /// <param name="lpNumberOfBytesRead">
-        /// The lp number of bytes read.
-        /// </param>
-        /// <returns>
-        /// The read process memory.
-        /// </returns>
         [DllImport("kernel32.dll", SetLastError = true)]
         public static extern bool ReadProcessMemory(
-            IntPtr hProcess, IntPtr lpBaseAddress, [Out] byte[] lpBuffer, int dwSize, out int lpNumberOfBytesRead);
+            IntPtr hProcess, IntPtr lpBaseAddress, out byte[] lpBuffer, int dwSize, out int lpNumberOfBytesRead);
 
-        /// <summary>
-        /// The read process memory.
-        /// </summary>
-        /// <param name="hProcess">
-        /// The h process.
-        /// </param>
-        /// <param name="lpBaseAddress">
-        /// The lp base address.
-        /// </param>
-        /// <param name="lpBuffer">
-        /// The lp buffer.
-        /// </param>
-        /// <param name="dwSize">
-        /// The dw size.
-        /// </param>
-        /// <param name="lpNumberOfBytesRead">
-        /// The lp number of bytes read.
-        /// </param>
-        /// <returns>
-        /// The read process memory.
-        /// </returns>
         [DllImport("kernel32.dll", SetLastError = true)]
         public static extern bool ReadProcessMemory(
             IntPtr hProcess,
             IntPtr lpBaseAddress,
-            [Out] [MarshalAs(UnmanagedType.AsAny)] object lpBuffer,
+            out object lpBuffer,
             int dwSize,
             out int lpNumberOfBytesRead);
 
-        /// <summary>
-        /// The read process memory.
-        /// </summary>
-        /// <param name="hProcess">
-        /// The h process.
-        /// </param>
-        /// <param name="lpBaseAddress">
-        /// The lp base address.
-        /// </param>
-        /// <param name="lpBuffer">
-        /// The lp buffer.
-        /// </param>
-        /// <param name="dwSize">
-        /// The dw size.
-        /// </param>
-        /// <param name="lpNumberOfBytesRead">
-        /// The lp number of bytes read.
-        /// </param>
-        /// <returns>
-        /// The read process memory.
-        /// </returns>
         [DllImport("kernel32.dll", SetLastError = true)]
         public static extern bool ReadProcessMemory(
             IntPtr hProcess, IntPtr lpBaseAddress, IntPtr lpBuffer, int dwSize, out int lpNumberOfBytesRead);
 
-        /// <summary>
-        /// The resume thread.
-        /// </summary>
-        /// <param name="hThread">
-        /// The h thread.
-        /// </param>
-        /// <returns>
-        /// The resume thread.
-        /// </returns>
         [DllImport("kernel32.dll")]
         public static extern uint ResumeThread(IntPtr hThread);
 
-        /// <summary>
-        /// The terminate process.
-        /// </summary>
-        /// <param name="hProcess">
-        /// The h process.
-        /// </param>
-        /// <param name="uExitCode">
-        /// The u exit code.
-        /// </param>
-        /// <returns>
-        /// The terminate process.
-        /// </returns>
         [DllImport("kernel32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool TerminateProcess(IntPtr hProcess, uint uExitCode);
 
-        /// <summary>
-        /// The virtual alloc ex.
-        /// </summary>
-        /// <param name="hProcess">
-        /// The h process.
-        /// </param>
-        /// <param name="lpAddress">
-        /// The lp address.
-        /// </param>
-        /// <param name="dwSize">
-        /// The dw size.
-        /// </param>
-        /// <param name="flAllocationType">
-        /// The fl allocation type.
-        /// </param>
-        /// <param name="flProtect">
-        /// The fl protect.
-        /// </param>
-        /// <returns>
-        /// </returns>
         [DllImport("kernel32.dll", SetLastError = true, ExactSpelling = true)]
         public static extern IntPtr VirtualAllocEx(
             IntPtr hProcess, IntPtr lpAddress, uint dwSize, AllocationType flAllocationType, MemoryProtection flProtect);
 
-        /// <summary>
-        /// The virtual protect ex.
-        /// </summary>
-        /// <param name="hProcess">
-        /// The h process.
-        /// </param>
-        /// <param name="lpAddress">
-        /// The lp address.
-        /// </param>
-        /// <param name="dwSize">
-        /// The dw size.
-        /// </param>
-        /// <param name="flNewProtect">
-        /// The fl new protect.
-        /// </param>
-        /// <param name="lpflOldProtect">
-        /// The lpfl old protect.
-        /// </param>
-        /// <returns>
-        /// The virtual protect ex.
-        /// </returns>
         [DllImport("kernel32.dll")]
         public static extern bool VirtualProtectEx(
             IntPtr hProcess, IntPtr lpAddress, UIntPtr dwSize, uint flNewProtect, out uint lpflOldProtect);
@@ -513,7 +131,7 @@ namespace loader_lib
         [StructLayout(LayoutKind.Sequential)]
         public struct CRYPT_ALGORITHM_IDENTIFIER
         {
-            public String pszObjId;
+            public string pszObjId;
             BLOB Parameters;
         }
 
@@ -524,14 +142,14 @@ namespace loader_lib
             public BLOB IssuerSerialNumberOrKeyIdOrHashId;
         }
 
-        [StructLayoutAttribute(LayoutKind.Sequential)]
+        [StructLayout(LayoutKind.Sequential)]
         public struct SIGNER_SUBJECT_INFO
         {
             /// DWORD->unsigned int
             public uint cbSize;
 
             /// DWORD*
-            public System.IntPtr pdwIndex;
+            public IntPtr pdwIndex;
 
             /// DWORD->unsigned int
             public uint dwSubjectChoice;
@@ -540,17 +158,17 @@ namespace loader_lib
             public SubjectChoiceUnion Union1;
         }
 
-        [StructLayoutAttribute(LayoutKind.Explicit)]
+        [StructLayout(LayoutKind.Explicit)]
         public struct SubjectChoiceUnion
         {
 
             /// SIGNER_FILE_INFO*
-            [FieldOffsetAttribute(0)]
-            public System.IntPtr pSignerFileInfo;
+            [FieldOffset(0)]
+            public IntPtr pSignerFileInfo;
 
             /// SIGNER_BLOB_INFO*
-            [FieldOffsetAttribute(0)]
-            public System.IntPtr pSignerBlobInfo;
+            [FieldOffset(0)]
+            public IntPtr pSignerBlobInfo;
         }
 
         [StructLayout(LayoutKind.Sequential)]
@@ -564,7 +182,7 @@ namespace loader_lib
         [StructLayout(LayoutKind.Sequential)]
         public struct CRYPT_INTEGER_BLOB
         {
-            public UInt32 cbData;
+            public uint cbData;
             public IntPtr pbData;
         }
 
@@ -657,7 +275,7 @@ namespace loader_lib
         public static string szOID_RSA_signingTime = "1.2.840.113549.1.9.5";
         public static string szOID_RSA_counterSign = "1.2.840.113549.1.9.6";
 
-        //+-------------------------------------------------------------------------
+        //-------------------------------------------------------------------------
         //  Get parameter types and their corresponding data structure definitions.
         //--------------------------------------------------------------------------
         public const int CMSG_TYPE_PARAM = 1;
@@ -821,34 +439,18 @@ namespace loader_lib
             CERT_QUERY_FORMAT_FLAG_BASE64_ENCODED |
             CERT_QUERY_FORMAT_FLAG_ASN_ASCII_HEX_ENCODED;
 
-        /// <summary>
-        /// The write process memory.
-        /// </summary>
-        /// <param name="hProcess">
-        /// The h process.
-        /// </param>
-        /// <param name="lpBaseAddress">
-        /// The lp base address.
-        /// </param>
-        /// <param name="lpBuffer">
-        /// The lp buffer.
-        /// </param>
-        /// <param name="nSize">
-        /// The n size.
-        /// </param>
-        /// <param name="lpNumberOfBytesWritten">
-        /// The lp number of bytes written.
-        /// </param>
-        /// <returns>
-        /// The write process memory.
-        /// </returns>
         [DllImport("kernel32.dll", SetLastError = true)]
-        public static extern bool WriteProcessMemory(
-            IntPtr hProcess, IntPtr lpBaseAddress, byte[] lpBuffer, uint nSize, out UIntPtr lpNumberOfBytesWritten);
+        public static extern bool WriteProcessMemory(IntPtr hProcess, IntPtr lpBaseAddress, [In, Out] byte[] lpBuffer, uint nSize, out UIntPtr lpNumberOfBytesWritten);
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        public static extern bool WriteProcessMemory(IntPtr hProcess, IntPtr lpBaseAddress, [In, Out] ref int lpBuffer, uint nSize, out UIntPtr lpNumberOfBytesWritten);
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        public static extern bool WriteProcessMemory(IntPtr hProcess, IntPtr lpBaseAddress, [In, Out] ref IntPtr lpBuffer, uint nSize, out UIntPtr lpNumberOfBytesWritten);
+
 
         [DllImport("kernel32.dll")]
         public static extern bool TerminateThread(IntPtr hThread, uint dwExitCode);
 
-        #endregion
     }
 }

@@ -1,56 +1,41 @@
 ﻿using System;
 using System.Threading.Tasks;
 using System.Net;
-using System.Net.NetworkInformation;
 using System.Net.Http;
 
 namespace loader_lib
 {
     public static class CheckUpdate
     {
-        public static string version = "";
-        public static string info = "";
-        public static bool isforcibly = false;
+        public static string version { get; set; }
+        public static string info { get; set; }
+        public static bool isforcibly { get; set; }
 
-        public static async Task DoCheckUpdate(Uri address)
+        public static void DoCheckUpdate(Uri address)
         {
             try
             {
-                string result = null;
+                Task<string> t = GetUpgradeInfo(address);
 
-                Task task = new Task(async ()=> 
+                t.Wait(10000);
+
+                if (t.IsCompleted)
                 {
-                    result = await GetUpgradeInfo(address);
-                });
+                    string result = t.Result;
 
-                task.Start();
-                
-                for (int i = 0; i <= 4; i++)
+                    var ts = result.Split(new char[] { '-' }, 3);
+                    version = ts[0];
+                    isforcibly = Convert.ToBoolean(ts[1]);
+                    info = ts[2].Replace("/", Environment.NewLine);
+                }
+                else
                 {
-                    await Task.Delay(1000);
-                    if (i < 4)
-                    {
-                        if (task.IsCompleted)
-                        {
-                            string temp = result;
-
-                            var ts = temp.Split(new char[] { '-' }, 3);
-                            version = ts[0];
-                            isforcibly = Convert.ToBoolean(ts[1]);
-                            info = ts[2].Replace("/", Environment.NewLine);
-
-                            break;
-                        }
-                        else if (i == 4)
-                        {
-                            throw new Exception("检查更新失败了呢！原因是连接升级服务器超时，请检查你的网络连接和防火墙！");
-                        }
-                    }
+                    throw new Exception("检查更新失败了，可能是网络不通或无法连接更新服务器");
                 }
             }
             catch (Exception)
             {
-                throw;
+                throw new Exception("检查更新失败了，可能是网络不通或无法连接更新服务器");
             }
         }
 
@@ -58,19 +43,27 @@ namespace loader_lib
         {
             try
             {
-                using (HttpClient http = new HttpClient())
+                IPHostEntry hostip = await Dns.GetHostEntryAsync(address.DnsSafeHost);
+                if (hostip != null)
                 {
-                    var response = await http.GetAsync(address);
-                    response.EnsureSuccessStatusCode();
+                    using (HttpClient http = new HttpClient())
+                    {
+                        var response = await http.GetAsync(address);
+                        response.EnsureSuccessStatusCode();
 
-                    string content = await response.Content.ReadAsStringAsync();
+                        string content = await response.Content.ReadAsStringAsync();
 
-                    return content;
+                        return content;
+                    }
+                }
+                else
+                {
+                    return null;
                 }
             }
             catch (Exception)
             {
-                throw;
+                throw new Exception("检查更新失败了，可能是网络不通或无法连接更新服务器");
             }
         }
     }

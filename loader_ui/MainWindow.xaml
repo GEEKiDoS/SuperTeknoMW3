@@ -6,7 +6,7 @@
         xmlns:controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
         xmlns:local="clr-namespace:loader_ui"
         mc:Ignorable="d"
-        Title="Super TeknoMW3 1.1.3 Limit Edition" Height="382.72" Width="525" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Loaded="MetroWindow_Loaded" Icon="logo.ico" Closing="MetroWindow_Closing">
+        Title="Super TeknoMW3 1.1.5 Preview Edition" Height="382.72" Width="525" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Loaded="MetroWindow_Loaded" Icon="logo.ico" Closing="MetroWindow_Closing">
     <Grid>
         <Grid Margin="0,0,0,41">
             <StackPanel HorizontalAlignment="Center" Height="284" VerticalAlignment="Top" Width="494" Margin="15,27,10,0">
@@ -17,8 +17,8 @@
                 </StackPanel.Resources>
                 <TextBlock x:Name="textBlock" TextWrapping="Wrap" Text="欢迎阁下！" Margin="10,0,10,8" Height="47" FontSize="32" FontFamily="Microsoft YaHei UI Light"/>
                 <StackPanel Height="86">
-                    <TextBlock x:Name="textBlock1" TextWrapping="Wrap" Text="服务器或主机地址及端口 (仅用于连接特定服务器或主机)：" Height="33" Margin="78,0,80,0" FontFamily="Microsoft YaHei UI Light" FontSize="12.710"/>
-                    <TextBox x:Name="textBox" Height="37" TextWrapping="Wrap" Text="" Margin="78,0,90,0" Width="Auto" VerticalAlignment="Stretch" FontSize="26.667" FontFamily="Microsoft YaHei UI Light" LostFocus="textBox_LostFocus"/>
+                    <TextBlock x:Name="textBlock1" TextWrapping="Wrap" Text="服务器或主机地址及端口 (仅用于连接特定服务器或主机)：" Height="33" Margin="53,0" FontFamily="Microsoft YaHei UI Light" FontSize="14.5"/>
+                    <TextBox x:Name="textBox" Height="37" TextWrapping="Wrap" Text="" Margin="53,0" Width="Auto" VerticalAlignment="Stretch" FontSize="26.667" FontFamily="Microsoft YaHei UI Light" LostFocus="textBox_LostFocus"/>
                 </StackPanel>
                 <StackPanel Height="113">
                     <StackPanel Margin="50,0,51,0" HorizontalAlignment="Center" VerticalAlignment="Center" Height="40">
@@ -29,6 +29,7 @@
                                 </Style>
                             </StackPanel.Resources>
                             <Button x:Name="btn_mp" Content="运行多人游戏" FontFamily="Microsoft YaHei UI Light" FontSize="16" FontWeight="Normal" Width="190" Click="btn_mp_Click"/>
+                            <StackPanel Width="10" />
                             <Button x:Name="btn_sp" Content="运行单人/COOP游戏" FontFamily="Microsoft YaHei UI Light" FontSize="16" FontWeight="Normal" Width="190" Click="btn_sp_Click"/>
                         </StackPanel>
                     </StackPanel>
@@ -40,6 +41,7 @@
                                 </Style>
                             </StackPanel.Resources>
                             <Button x:Name="btn_settings" Content="设置" FontFamily="Microsoft YaHei UI Light" FontSize="16" FontWeight="Normal" Width="190" Click="btn_settings_Click"/>
+                            <StackPanel Width="10" />
                             <Button x:Name="btn_about" Content="使用帮助" FontFamily="Microsoft YaHei UI Light" FontSize="16" FontWeight="Normal" Width="190" Click="btn_about_Click"/>
                         </StackPanel>
                     </StackPanel>
@@ -51,11 +53,14 @@
                                 </Style>
                             </StackPanel.Resources>
                             <Button x:Name="btn_donate" Content="捐赠" FontFamily="Microsoft YaHei UI Light" FontSize="16" Width="190" Click="btn_donate_Click" FontWeight="Normal"/>
+                            <StackPanel Width="10" />
                             <Button x:Name="btn_github" Content="下载启动器源代码" FontFamily="Microsoft YaHei UI Light" FontSize="16" FontWeight="Normal" Width="190" Click="btn_github_Click"/>
                         </StackPanel>
                     </StackPanel>
                 </StackPanel>
             </StackPanel>
+            <CheckBox x:Name="cb_maxlevel" Content="多人游戏满级+解锁所有内容" Height="34" Margin="68,279,238,0" FontFamily="Microsoft YaHei UI Light"/>
+            <CheckBox x:Name="cb_skipupdate" Content="下次启动时检查非强制性更新" Height="34" Margin="268,279,16,0" FontFamily="Microsoft YaHei UI Light" Checked="cb_skipupdate_Checked" Unchecked="cb_skipupdate_Unchecked"/>
         </Grid>
         <Grid Margin="0,318,0,0">
             <ProgressBar x:Name="probar" VerticalAlignment="Center" Height="26" IsIndeterminate="True" Margin="0,10,0,0"/>
