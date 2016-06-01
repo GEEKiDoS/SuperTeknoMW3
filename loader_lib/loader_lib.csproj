@@ -46,7 +46,6 @@
     <Compile Include="CheckUpdate.cs" />
     <Compile Include="FileDownload.cs" />
     <Compile Include="IniParser.cs" />
-    <Compile Include="Profile.cs" />
     <Compile Include="XMLDecoder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RunProc.cs" />

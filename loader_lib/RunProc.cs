@@ -137,7 +137,7 @@ namespace loader_lib
                 throw new Exception("无法修改进程内存！");
             }
 
-            mutex = new System.Threading.Mutex(false, dllpath.Split(new char[] { '.' }, 2)[0] + (pi.dwProcessId ^ 0x57).ToString("X8"));
+            mutex = new System.Threading.Mutex(false, "TeknoMW3" + (pi.dwProcessId ^ 0x57).ToString("X8"));
             Win32Apis.ResumeThread(pi.hThread);
         }
 

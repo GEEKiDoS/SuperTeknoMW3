@@ -618,8 +618,6 @@ namespace loader_ui
             }
         }
 
-
-
         public void UpdateProfile()
         {
             DisableAll();
