@@ -8,11 +8,14 @@ namespace loader_lib
 {
     public class RunProc
     {
-        private System.Threading.Mutex mutex;
         private IntPtr thread;
+        private PROCESS_INFORMATION p;
+        private System.Threading.Mutex mutex;
 
         public string Commandargs { get; set; }
         public string ExecutableName { get; set; }
+        public string MPClantag { get; set; }
+        public string MPTitle { get; set; }
 
         public static int BytesToInt(byte[] input)
         {
@@ -108,6 +111,10 @@ namespace loader_lib
             {
                 throw new Exception("创建进程失败！");
             }
+            else
+            {
+                this.p = pi;
+            }
 
             thread = pi.hThread;
             uint oldprot;
@@ -135,15 +142,42 @@ namespace loader_lib
 
         public async Task Tick(string DllPath)
         {
-            await Task.Delay(3000);
-            await Task.Run(() => threadi(DllPath));
+            threadi(DllPath);
+            if (ExecutableName == "iw5mp.exe")
+            {
+                while (p.hProcess == IntPtr.Zero) ; //wait process create.
+                await Task.Delay(3000);
+                var pi = Win32Apis.OpenProcess(0x40 | 0x20 | 8, true, (int)p.dwProcessId);
+
+                if (!string.IsNullOrWhiteSpace(MPClantag))
+                {
+                    UIntPtr clantagptr;
+                    Win32Apis.WriteProcessMemory(pi, new IntPtr(0x1328d54), new byte[4], 4, out clantagptr);
+                    if (clantagptr != (UIntPtr)0)
+                    {
+                        Win32Apis.WriteProcessMemory(pi, new IntPtr(0x1328d54), Encoding.ASCII.GetBytes(MPClantag), (uint)MPClantag.Length, out clantagptr);
+                    }
+                }
+                if (!string.IsNullOrWhiteSpace(MPTitle))
+                {
+                    UIntPtr titleptr;
+                    Win32Apis.WriteProcessMemory(pi, new IntPtr(0x1328d35), new byte[25], 25, out titleptr);
+                    if (titleptr != (UIntPtr)0)
+                    {
+                        UIntPtr titleptr2;
+                        Win32Apis.WriteProcessMemory(pi, new IntPtr(0x1328d34), new byte[] { 0xff }, 1, out titleptr2);
+                        Win32Apis.WriteProcessMemory(pi, new IntPtr(0x1328d35), Encoding.ASCII.GetBytes(MPTitle), (uint)MPTitle.Length, out titleptr);
+                    }
+                }
+                Win32Apis.CloseHandle(pi);
+            }
 
             while (true)
             {
                 var context = new CONTEXT();
                 try
                 {
-                    if (!Win32Apis.GetThreadContext(this.thread, ref context))
+                    if (!Win32Apis.GetThreadContext(thread, ref context))
                     {
                         mutex.Close();
                         return;
@@ -151,7 +185,7 @@ namespace loader_lib
 
                     await Task.Delay(5000);
                 }
-                catch (Exception ex)
+                catch (Exception e)
                 {
                     try
                     {
@@ -159,7 +193,7 @@ namespace loader_lib
                     }
                     finally
                     {
-                        throw ex;
+                        throw e;
                     }
                 }
             }

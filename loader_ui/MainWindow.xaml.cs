@@ -377,9 +377,6 @@ namespace loader_ui
                         Settings st = new Settings(profile);
                         st.ShowDialog();
                         UpdateProfile();
-                        await Task.Delay(1000);
-                        label.Content = "准备就绪了呢";
-                        probar.IsIndeterminate = false;
                     }
                     else if (AutoChanged)
                     {
@@ -388,6 +385,10 @@ namespace loader_ui
                     else
                     {
                         textBlock.Text = "欢迎阁下！" + profile.Name;
+                        await Task.Delay(1000);
+                        label.Content = "准备就绪了呢";
+                        probar.IsIndeterminate = false;
+                        EnableAll();
                     }
                 }
                 else
@@ -399,9 +400,6 @@ namespace loader_ui
                     Settings st = new Settings(profile);
                     st.ShowDialog();
                     UpdateProfile();
-                    await Task.Delay(1000);
-                    label.Content = "准备就绪了呢";
-                    probar.IsIndeterminate = false;
                 }
             }
             catch (Exception)
@@ -416,6 +414,7 @@ namespace loader_ui
                 await Task.Delay(1000);
                 label.Content = "准备就绪了呢";
                 probar.IsIndeterminate = false;
+                EnableAll();
             }
         }
 
@@ -495,7 +494,7 @@ namespace loader_ui
             DisableAll();
             try
             {
-                RunProc runproc = new RunProc { ExecutableName = proc, Commandargs = arguements };
+                RunProc runproc = new RunProc { ExecutableName = proc, Commandargs = arguements, MPClantag = profile.Clantag, MPTitle = profile.Title };
                 await runproc.Tick(proc == "iw5mp.exe" ? "teknomw3.dll" : "teknomw3_sp.dll");
             }
             catch (Exception ex)
