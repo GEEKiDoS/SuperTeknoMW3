@@ -9,7 +9,8 @@ namespace loader_lib
     public class RunProc
     {
         private IntPtr thread;
-        private PROCESS_INFORMATION pi;
+        private PROCESS_INFORMATION p;
+        private System.Threading.Mutex mutex;
 
         public string Commandargs { get; set; }
         public string ExecutableName { get; set; }
@@ -113,7 +114,7 @@ namespace loader_lib
             }
             else
             {
-                this.pi = pi;
+                this.p = pi;
             }
 
             thread = pi.hThread;
@@ -135,126 +136,125 @@ namespace loader_lib
                 Win32Apis.TerminateThread(pi.hThread, 0);
                 throw new Exception("无法修改进程内存！");
             }
+
+            mutex = new System.Threading.Mutex(false, dllpath.Split(new char[] { '.' }, 2)[0] + (pi.dwProcessId ^ 0x57).ToString("X8"));
             Win32Apis.ResumeThread(pi.hThread);
         }
 
         public async Task Tick(string DllPath)
         {
-            await Task.Delay(3000);
-            await Task.Factory.StartNew(() => threadi(DllPath));
+            threadi(DllPath);
             if (ExecutableName == "iw5mp.exe")
             {
-                await Task.Delay(5000);
-                await Task.Factory.StartNew(() =>
+                while (p.hProcess == IntPtr.Zero); //wait process create.
+                await Task.Delay(3000);
+                var pi = Win32Apis.OpenProcess(0x40 | 0x20 | 8, true, (int)this.p.dwProcessId);
+
+                if (!string.IsNullOrWhiteSpace(MPClantag))
                 {
-                    var pi = Win32Apis.OpenProcess(0x40 | 0x20 | 8, true, (int)this.pi.dwProcessId);
-
-                    if (!string.IsNullOrWhiteSpace(MPClantag))
+                    UIntPtr clantagptr;
+                    Win32Apis.WriteProcessMemory(pi, new IntPtr(0x1328d54), new byte[8], 8, out clantagptr);
+                    if (clantagptr != (UIntPtr)0)
                     {
-                        UIntPtr clantagptr;
-                        Win32Apis.WriteProcessMemory(pi, new IntPtr(0x1328d54), new byte[8], 8, out clantagptr);
-                        if (clantagptr != (UIntPtr)0)
-                        {
-                            Win32Apis.WriteProcessMemory(pi, new IntPtr(0x1328d54), Encoding.ASCII.GetBytes(MPClantag), (uint)Encoding.ASCII.GetBytes(MPClantag).Length, out clantagptr);
-                        }
+                        Win32Apis.WriteProcessMemory(pi, new IntPtr(0x1328d54), Encoding.ASCII.GetBytes(MPClantag), (uint)MPClantag.Length, out clantagptr);
                     }
-                    if (!string.IsNullOrWhiteSpace(MPTitle))
+                }
+                if (!string.IsNullOrWhiteSpace(MPTitle))
+                {
+                    UIntPtr titleptr;
+                    Win32Apis.WriteProcessMemory(pi, new IntPtr(0x1328d35), new byte[25], 25, out titleptr);
+                    if (titleptr != (UIntPtr)0)
                     {
-                        UIntPtr titleptr;
-                        Win32Apis.WriteProcessMemory(pi, new IntPtr(0x1328d35), new byte[25], 25, out titleptr);
-                        if (titleptr != (UIntPtr)0)
-                        {
-                            UIntPtr titleptr2;
-                            Win32Apis.WriteProcessMemory(pi, new IntPtr(0x1328d34), new byte[] { 0xff }, 1, out titleptr2);
-                            Win32Apis.WriteProcessMemory(pi, new IntPtr(0x1328d35), Encoding.ASCII.GetBytes(MPTitle), (uint)Encoding.ASCII.GetBytes(MPTitle).Length, out titleptr);
-                        }
+                        UIntPtr titleptr2;
+                        Win32Apis.WriteProcessMemory(pi, new IntPtr(0x1328d34), new byte[] { 0xff }, 1, out titleptr2);
+                        Win32Apis.WriteProcessMemory(pi, new IntPtr(0x1328d35), Encoding.ASCII.GetBytes(MPTitle), (uint)MPTitle.Length, out titleptr);
                     }
-                    if (MPUnlockAll)
-                    {
-                        IntPtr rank = (IntPtr)0x1cdba54;
-                        IntPtr prestige = rank + 0x210;
-                        IntPtr tokens = rank + 0x206f;
-                        IntPtr perkspointer = rank + 0xf9a;
-                        IntPtr classpointer = rank + 0x2077;
+                }
+                if (MPUnlockAll)
+                {
+                    IntPtr rank = (IntPtr)0x1cdba54;
+                    IntPtr prestige = rank + 0x210;
+                    IntPtr tokens = rank + 0x206f;
+                    IntPtr perkspointer = rank + 0xf9a;
+                    IntPtr classpointer = rank + 0x2077;
 
-                        UIntPtr unlockallptr;
-                        WriteInt(pi, rank, 0x19dfd4, 4, out unlockallptr);
-                        WriteInt(pi, prestige, 20, 4, out unlockallptr);
-                        WriteInt(pi, rank + 0x2c, 0x2bd91, 4, out unlockallptr);
-                        WriteInt(pi, rank + 0x58, 0x2bd91, 4, out unlockallptr);
-                        WriteInt(pi, rank + 0x20, 0x2bd91, 4, out unlockallptr);
-                        WriteInt(pi, rank + 0x80, 0x2bd91, 4, out unlockallptr);
-                        WriteInt(pi, rank + 0x74, 0x2bd91, 4, out unlockallptr);
-                        WriteInt(pi, rank + 0x7c, 0x2bd91, 4, out unlockallptr);
-                        WriteInt(pi, rank + 0xb0, 0x2f44, 4, out unlockallptr);
-                        WriteInt(pi, rank + 0xd8, 0x2f44, 4, out unlockallptr);
-                        WriteInt(pi, rank + 20, 0x2f44, 4, out unlockallptr);
-                        WriteInt(pi, rank + 40, 0x2bd91, 4, out unlockallptr);
-                        WriteInt(pi, rank + 0x30, 0x2bd91, 4, out unlockallptr);
-                        WriteInt(pi, rank + 0x44, 0x2bd91, 4, out unlockallptr);
-                        WriteInt(pi, rank + 0x24, 0x2bd91, 4, out unlockallptr);
-                        WriteInt(pi, rank + 0x38, 0x2bd91, 4, out unlockallptr);
-                        WriteInt(pi, rank + 0x34, 0x2bd91, 4, out unlockallptr);
-                        WriteInt(pi, rank + 0x40, 0x2bd91, 4, out unlockallptr);
-                        WriteInt(pi, rank + 8, 0x2f44, 4, out unlockallptr);
-                        WriteInt(pi, rank + 0x18, 0x2f44, 4, out unlockallptr);
-                        WriteInt(pi, rank + 0x10, 0x2f44, 4, out unlockallptr);
-                        WriteInt(pi, rank + 0x48, 0x2bd91, 4, out unlockallptr);
-                        WriteInt(pi, rank + 0x4c, 0x2bd91, 4, out unlockallptr);
-                        WriteInt(pi, rank + 0x5c, 0x2bd91, 4, out unlockallptr);
-                        WriteInt(pi, rank + 100, 0x2f44, 4, out unlockallptr);
-                        WriteInt(pi, rank + 160, 0x2bd91, 4, out unlockallptr);
-                        WriteInt(pi, rank + 0xac, 0x2bd91, 4, out unlockallptr);
-                        WriteInt(pi, rank + 0xb0, 0x2bd91, 4, out unlockallptr);
-                        WriteInt(pi, rank + 0xa8, 0x2bd91, 4, out unlockallptr);
-                        WriteInt(pi, rank + 0xa4, 0x2bd91, 4, out unlockallptr);
-                        WriteInt(pi, rank + 0x98, 0x2bd91, 4, out unlockallptr);
-                        WriteInt(pi, rank + 0x9c, 0x2bd91, 4, out unlockallptr);
-                        WriteInt(pi, rank + 0x94, 0x2bd91, 4, out unlockallptr);
-                        WriteInt(pi, rank + 0x90, 0x2bd91, 4, out unlockallptr);
-                        WriteInt(pi, rank + 140, 0x2bd91, 4, out unlockallptr);
-                        WriteInt(pi, rank + 60, 0x2bd91, 4, out unlockallptr);
-                        WriteInt(pi, rank + 80, 0x2bd91, 4, out unlockallptr);
-                        WriteInt(pi, rank + 0x54, 0x2bd91, 4, out unlockallptr);
-                        WriteInt(pi, rank + 180, 0x2bd91, 4, out unlockallptr);
-                        WriteInt(pi, rank + 0x60, 0x2f44, 4, out unlockallptr);
-                        WriteInt(pi, rank + 0x68, 0x2f44, 4, out unlockallptr);
-                        WriteInt(pi, rank + 0x6c, 0x2f44, 4, out unlockallptr);
-                        WriteInt(pi, rank + 12, 0x2f44, 4, out unlockallptr);
-                        WriteInt(pi, rank + 0x1c, 0x2f44, 4, out unlockallptr);
-                        WriteInt(pi, rank + 120, 0x2bd91, 4, out unlockallptr);
-                        WriteInt(pi, rank + 0x84, 0x2bd91, 4, out unlockallptr);
-                        WriteInt(pi, rank + 0x88, 0x2bd91, 4, out unlockallptr);
-                        WriteInt(pi, rank + 0x100, 0x2bd91, 4, out unlockallptr);
-                        WriteInt(pi, rank + 220, 0x2f44, 4, out unlockallptr);
-                        WriteInt(pi, rank + 0xe4, 0x2f44, 4, out unlockallptr);
-                        WriteInt(pi, rank + 0xbc, 0x2f44, 4, out unlockallptr);
-                        WriteInt(pi, rank + 0x10c, 0x2f44, 4, out unlockallptr);
-                        WriteInt(pi, perkspointer, 0x7070707, 4, out unlockallptr);
-                        WriteInt(pi, perkspointer + 1, 0x7070707, 4, out unlockallptr);
-                        WriteInt(pi, perkspointer + 2, 0x7070707, 4, out unlockallptr);
-                        WriteInt(pi, perkspointer + 3, 0x7070707, 4, out unlockallptr);
-                        WriteInt(pi, perkspointer + 4, 0x7070707, 4, out unlockallptr);
-                        WriteInt(pi, perkspointer + 5, 0x7070707, 4, out unlockallptr);
-                        WriteInt(pi, perkspointer + 6, 0x7070707, 4, out unlockallptr);
-                        WriteInt(pi, perkspointer + 7, 0x7070707, 4, out unlockallptr);
-                        WriteInt(pi, perkspointer + 8, 0x7070707, 4, out unlockallptr);
-                        WriteInt(pi, perkspointer + 9, 0x7070707, 4, out unlockallptr);
-                        WriteInt(pi, perkspointer + 10, 0x7070707, 4, out unlockallptr);
-                        WriteInt(pi, perkspointer + 11, 0x7070707, 4, out unlockallptr);
-                        WriteInt(pi, perkspointer + 12, 0x7070707, 4, out unlockallptr);
-                        WriteInt(pi, perkspointer + 13, 0x7070707, 4, out unlockallptr);
-                        WriteInt(pi, perkspointer + 14, 0x7070707, 4, out unlockallptr);
-                        WriteInt(pi, classpointer, 10, 4, out unlockallptr);
-                    }
+                    UIntPtr unlockallptr;
+                    WriteInt(pi, rank, 0x19dfd4, 4, out unlockallptr);
+                    WriteInt(pi, prestige, 20, 4, out unlockallptr);
+                    WriteInt(pi, rank + 0x2c, 0x2bd91, 4, out unlockallptr);
+                    WriteInt(pi, rank + 0x58, 0x2bd91, 4, out unlockallptr);
+                    WriteInt(pi, rank + 0x20, 0x2bd91, 4, out unlockallptr);
+                    WriteInt(pi, rank + 0x80, 0x2bd91, 4, out unlockallptr);
+                    WriteInt(pi, rank + 0x74, 0x2bd91, 4, out unlockallptr);
+                    WriteInt(pi, rank + 0x7c, 0x2bd91, 4, out unlockallptr);
+                    WriteInt(pi, rank + 0xb0, 0x2f44, 4, out unlockallptr);
+                    WriteInt(pi, rank + 0xd8, 0x2f44, 4, out unlockallptr);
+                    WriteInt(pi, rank + 20, 0x2f44, 4, out unlockallptr);
+                    WriteInt(pi, rank + 40, 0x2bd91, 4, out unlockallptr);
+                    WriteInt(pi, rank + 0x30, 0x2bd91, 4, out unlockallptr);
+                    WriteInt(pi, rank + 0x44, 0x2bd91, 4, out unlockallptr);
+                    WriteInt(pi, rank + 0x24, 0x2bd91, 4, out unlockallptr);
+                    WriteInt(pi, rank + 0x38, 0x2bd91, 4, out unlockallptr);
+                    WriteInt(pi, rank + 0x34, 0x2bd91, 4, out unlockallptr);
+                    WriteInt(pi, rank + 0x40, 0x2bd91, 4, out unlockallptr);
+                    WriteInt(pi, rank + 8, 0x2f44, 4, out unlockallptr);
+                    WriteInt(pi, rank + 0x18, 0x2f44, 4, out unlockallptr);
+                    WriteInt(pi, rank + 0x10, 0x2f44, 4, out unlockallptr);
+                    WriteInt(pi, rank + 0x48, 0x2bd91, 4, out unlockallptr);
+                    WriteInt(pi, rank + 0x4c, 0x2bd91, 4, out unlockallptr);
+                    WriteInt(pi, rank + 0x5c, 0x2bd91, 4, out unlockallptr);
+                    WriteInt(pi, rank + 100, 0x2f44, 4, out unlockallptr);
+                    WriteInt(pi, rank + 160, 0x2bd91, 4, out unlockallptr);
+                    WriteInt(pi, rank + 0xac, 0x2bd91, 4, out unlockallptr);
+                    WriteInt(pi, rank + 0xb0, 0x2bd91, 4, out unlockallptr);
+                    WriteInt(pi, rank + 0xa8, 0x2bd91, 4, out unlockallptr);
+                    WriteInt(pi, rank + 0xa4, 0x2bd91, 4, out unlockallptr);
+                    WriteInt(pi, rank + 0x98, 0x2bd91, 4, out unlockallptr);
+                    WriteInt(pi, rank + 0x9c, 0x2bd91, 4, out unlockallptr);
+                    WriteInt(pi, rank + 0x94, 0x2bd91, 4, out unlockallptr);
+                    WriteInt(pi, rank + 0x90, 0x2bd91, 4, out unlockallptr);
+                    WriteInt(pi, rank + 140, 0x2bd91, 4, out unlockallptr);
+                    WriteInt(pi, rank + 60, 0x2bd91, 4, out unlockallptr);
+                    WriteInt(pi, rank + 80, 0x2bd91, 4, out unlockallptr);
+                    WriteInt(pi, rank + 0x54, 0x2bd91, 4, out unlockallptr);
+                    WriteInt(pi, rank + 180, 0x2bd91, 4, out unlockallptr);
+                    WriteInt(pi, rank + 0x60, 0x2f44, 4, out unlockallptr);
+                    WriteInt(pi, rank + 0x68, 0x2f44, 4, out unlockallptr);
+                    WriteInt(pi, rank + 0x6c, 0x2f44, 4, out unlockallptr);
+                    WriteInt(pi, rank + 12, 0x2f44, 4, out unlockallptr);
+                    WriteInt(pi, rank + 0x1c, 0x2f44, 4, out unlockallptr);
+                    WriteInt(pi, rank + 120, 0x2bd91, 4, out unlockallptr);
+                    WriteInt(pi, rank + 0x84, 0x2bd91, 4, out unlockallptr);
+                    WriteInt(pi, rank + 0x88, 0x2bd91, 4, out unlockallptr);
+                    WriteInt(pi, rank + 0x100, 0x2bd91, 4, out unlockallptr);
+                    WriteInt(pi, rank + 220, 0x2f44, 4, out unlockallptr);
+                    WriteInt(pi, rank + 0xe4, 0x2f44, 4, out unlockallptr);
+                    WriteInt(pi, rank + 0xbc, 0x2f44, 4, out unlockallptr);
+                    WriteInt(pi, rank + 0x10c, 0x2f44, 4, out unlockallptr);
+                    WriteInt(pi, perkspointer, 0x7070707, 4, out unlockallptr);
+                    WriteInt(pi, perkspointer + 1, 0x7070707, 4, out unlockallptr);
+                    WriteInt(pi, perkspointer + 2, 0x7070707, 4, out unlockallptr);
+                    WriteInt(pi, perkspointer + 3, 0x7070707, 4, out unlockallptr);
+                    WriteInt(pi, perkspointer + 4, 0x7070707, 4, out unlockallptr);
+                    WriteInt(pi, perkspointer + 5, 0x7070707, 4, out unlockallptr);
+                    WriteInt(pi, perkspointer + 6, 0x7070707, 4, out unlockallptr);
+                    WriteInt(pi, perkspointer + 7, 0x7070707, 4, out unlockallptr);
+                    WriteInt(pi, perkspointer + 8, 0x7070707, 4, out unlockallptr);
+                    WriteInt(pi, perkspointer + 9, 0x7070707, 4, out unlockallptr);
+                    WriteInt(pi, perkspointer + 10, 0x7070707, 4, out unlockallptr);
+                    WriteInt(pi, perkspointer + 11, 0x7070707, 4, out unlockallptr);
+                    WriteInt(pi, perkspointer + 12, 0x7070707, 4, out unlockallptr);
+                    WriteInt(pi, perkspointer + 13, 0x7070707, 4, out unlockallptr);
+                    WriteInt(pi, perkspointer + 14, 0x7070707, 4, out unlockallptr);
+                    WriteInt(pi, classpointer, 10, 4, out unlockallptr);
+                }
 
-                    string str = "^5SuperTeknoMW3 1.1.5 \n^7By A2ON";
-                    
-                    UIntPtr outptr;
-                    Win32Apis.WriteProcessMemory(pi, (IntPtr)0x1004cb18, Encoding.ASCII.GetBytes(str), (uint)Encoding.ASCII.GetBytes(str).Length, out outptr); //Not Working
+                string str = "^5SuperTeknoMW3 1.1.5 \n^7By A2ON";
 
-                    Win32Apis.CloseHandle(pi);
-                });
+                UIntPtr outptr;
+                Win32Apis.WriteProcessMemory(pi, (IntPtr)0x1004cb18, Encoding.ASCII.GetBytes(str), (uint)str.Length, out outptr); //not working.
+
+                Win32Apis.CloseHandle(pi);
             }
 
             while (true)
@@ -264,20 +264,21 @@ namespace loader_lib
                 {
                     if (!Win32Apis.GetThreadContext(thread, ref context))
                     {
+                        mutex.Close();
                         return;
                     }
 
                     await Task.Delay(5000);
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
                     try
                     {
-                        throw;
+                        mutex.Close();
                     }
-                    catch (Exception)
+                    finally
                     {
-                        throw;
+                        throw e;
                     }
                 }
             }
