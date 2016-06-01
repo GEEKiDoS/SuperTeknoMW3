@@ -33,26 +33,22 @@ namespace loader_ui
 
         private void SaveProfile()
         {
-            TextWriter writer = new StreamWriter("teknogods.ini");
-
             try
             {
-                writer.WriteLine("[Settings]");
-                writer.WriteLine("Name=" + profile.Name);
-                //writer.WriteLine("ID=" + profile.ID);
-                writer.WriteLine("FOV=" + profile.FOV);
-                writer.WriteLine("Clantag=" + profile.Clantag);
-                writer.WriteLine("Title=" + profile.Title);
-                writer.WriteLine("ShowConsole=" + profile.ShowConsole.ToString().ToLower());
+                IniParser ini = new IniParser("teknogods.ini");
+                ini.AddSetting("Settings", "ID", profile.ID);
+                ini.AddSetting("Settings", "FOV", profile.FOV.ToString());
+                ini.AddSetting("Settings", "Clantag", profile.Clantag);
+                ini.AddSetting("Settings", "Title", profile.Title);
+                ini.AddSetting("Settings", "ShowConsole", profile.ShowConsole.ToString().ToLower());
+                ini.AddSetting("Settings", "Maxfps", profile.Maxfps.ToString());
+                ini.AddSetting("Settings", "SkipUpdate", profile.SkipUpdate.ToString().ToLower());
+                ini.SaveSettings();
             }
             catch (Exception)
             {
                 MessageBox.Show("创建配置文件失败！请检查磁盘是否有写保护，以及是否有写入权限！", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                 Close();
-            }
-            finally
-            {
-                writer.Close();
             }
         }
 
@@ -79,30 +75,25 @@ namespace loader_ui
 
             if ((string.IsNullOrEmpty(profile.Name) || string.IsNullOrWhiteSpace(profile.Name)) || (profile.Name.Length > 15 || profile.Name.Length < 3))
             {
-                MessageBox.Show("游戏昵称不符合要求！请重新输入。", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show("游戏昵称长度不能低于3位和高于15位！\n不能为空或者只用空白字符，也不能使用特殊字符！请重新输入。", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
 
-            //profile.ID = Convert.ToInt64(ini.GetSetting("Settings", "ID"));
-            //if (string.IsNullOrWhiteSpace(profile.ID.ToString()) || profile.ID.ToString() == "0")
-            //{
-            //}
-
             if (profile.FOV > 90 || profile.FOV < 65)
             {
-                MessageBox.Show("视野大小不符合要求！请重新输入。", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show("视野大小不能低于65和高于90！请重新输入。", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
 
             if (profile.Clantag.Length > 4)
             {
-                MessageBox.Show("战队不符合要求！请重新输入。", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show("战队标签字符数不可超过4位！请重新输入。", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
 
             if (profile.Title.Length > 25)
             {
-                MessageBox.Show("标签文本不符合要求！请重新输入。", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show("个人标签字符数不可超过25位！请重新输入。", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
 
@@ -137,11 +128,6 @@ namespace loader_ui
                 return;
             }
 
-            //profile.ID = Convert.ToInt64(ini.GetSetting("Settings", "ID"));
-            //if (string.IsNullOrWhiteSpace(profile.ID.ToString()) || profile.ID.ToString() == "0")
-            //{
-            //}
-
             if (profile.FOV > 90 || profile.FOV < 65)
             {
                 MessageBox.Show("视野大小不符合要求！请重新输入。", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
@@ -173,11 +159,6 @@ namespace loader_ui
             {
                 e.Cancel = true;
             }
-        }
-
-        private void MetroWindow_LostFocus(object sender, RoutedEventArgs e)
-        {
-
         }
     }
 }

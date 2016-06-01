@@ -2,14 +2,13 @@
 using System.Globalization;
 using System.IO;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace loader_lib
 {
     public class RunProc
     {
-        private Mutex mutex;
+        private System.Threading.Mutex mutex;
         private IntPtr thread;
 
         public string Commandargs { get; set; }
@@ -130,7 +129,7 @@ namespace loader_lib
                 throw new Exception("无法修改进程内存！");
             }
 
-            mutex = new Mutex(false, "TeknoMW3" + (pi.dwProcessId ^ 0x57).ToString("X8"));
+            mutex = new System.Threading.Mutex(false, "TeknoMW3" + (pi.dwProcessId ^ 0x57).ToString("X8"));
             Win32Apis.ResumeThread(pi.hThread);
         }
 
@@ -152,16 +151,15 @@ namespace loader_lib
 
                     await Task.Delay(5000);
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
                     try
                     {
                         mutex.Close();
-                        throw;
                     }
-                    catch (Exception)
+                    finally
                     {
-                        throw;
+                        throw ex;
                     }
                 }
             }
