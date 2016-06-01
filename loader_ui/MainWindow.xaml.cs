@@ -80,7 +80,7 @@ namespace loader_ui
                 string info = CheckUpdate.info;
                 bool isforcibly = CheckUpdate.isforcibly;
 
-                if (version != "1.1.5")
+                if (version != "1.1.4")
                 {
                     if (isforcibly)
                     {
