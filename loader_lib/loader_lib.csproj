@@ -8,8 +8,8 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>loader_lib</RootNamespace>
-    <AssemblyName>a2on_lib</AssemblyName>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <AssemblyName>SuperTeknoMW3</AssemblyName>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -43,10 +43,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CheckUpdate.cs" />
+    <Compile Include="FileSystemCheck.cs" />
+    <Compile Include="Update.cs" />
     <Compile Include="FileDownload.cs" />
     <Compile Include="IniParser.cs" />
-    <Compile Include="XMLDecoder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RunProc.cs" />
     <Compile Include="Win32Api\PE.cs" />

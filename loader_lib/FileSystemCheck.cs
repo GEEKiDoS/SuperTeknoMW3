@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace loader_lib
 {
-    public class XMLDecoder
+    public class FileSystemCheck
     {
     }
 }

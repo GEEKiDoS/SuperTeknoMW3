@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // 有关程序集的一般信息由以下
 // 控制。更改这些特性值可修改
 // 与程序集关联的信息。
-[assembly: AssemblyTitle("loader_filechecksum")]
+[assembly: AssemblyTitle("loader_updateinstaller")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("loader_filechecksum")]
+[assembly: AssemblyProduct("loader_updateinstaller")]
 [assembly: AssemblyCopyright("Copyright ©  2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // 如果此项目向 COM 公开，则下列 GUID 用于类型库的 ID
-[assembly: Guid("ffb88e66-b275-4397-a0a1-fdbb9d347be6")]
+[assembly: Guid("c0f1f393-3014-49a5-ad6a-b8edf03c2327")]
 
 // 程序集的版本信息由下列四个值组成: 
 //

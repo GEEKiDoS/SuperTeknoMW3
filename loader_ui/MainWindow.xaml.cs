@@ -1,23 +1,22 @@
-﻿using System;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using loader_lib;
+using MahApps.Metro.Controls;
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using MahApps.Metro.Controls;
-using loader_lib;
+using System.Threading.Tasks;
+using System.Windows;
 
 namespace loader_ui
 {
-    /// <summary>
-    /// MainWindow.xaml 的交互逻辑
-    /// </summary>
     public partial class MainWindow : MetroWindow
     {
         private Proflie profile;
         private Random rng = new Random();
         private bool newuser = false;
         private bool canclose = true;
-        private bool cansp = true;
+        private bool havesp = true;
+        private bool chinese = false;
 
         public MainWindow()
         {
@@ -37,7 +36,56 @@ namespace loader_ui
         private async void MetroWindow_Loaded(object sender, RoutedEventArgs e)
         {
             DisableAll();
-            label.Content = "验证配置文件...";
+            // 校检文件
+            if (!File.Exists("cache.xml"))
+            {
+
+            }
+            // 检查更新
+            await Task.Delay(1000);
+            label.Content = "检查更新...";
+            probar.IsIndeterminate = true;
+            try
+            {
+                // 地址已迁移至app.config，尚未完成，所以使用连接字符串代替，下一版本完善
+                await Task.Factory.StartNew(() => Update.GetUpdateInfo(new Uri(System.Configuration.ConfigurationManager.ConnectionStrings["upgrade_address"].ConnectionString)));
+
+                int build = Update.build;
+                bool isforcibly = Update.isforcibly;
+                string info = Update.info;
+
+                if (build >= 115) //版本号存储将在下一版本迁移至app.config
+                {
+                    try
+                    {
+                        if (isforcibly)
+                        {
+                            MessageBoxResult result = MessageBox.Show("检测到新版本：" + Update.version + "\n" + info + "\n\n点击确定立即下载新版本！", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
+                            DownloadUpdate();
+
+                        }
+                        else if (profile.SkipUpdate == false)
+                        {
+                            MessageBoxResult result = MessageBox.Show("检测到非强制更新版本：" + Update.version + "\n" + info + "\n\n是否立即下载新版本？", "提示", MessageBoxButton.YesNo, MessageBoxImage.Information);
+                            if (result == MessageBoxResult.Yes)
+                            {
+                                DownloadUpdate();
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new Exception("下载文件时发生错误：" + ex.Message);
+                    }
+                }
+            }
+            finally
+            {
+
+            }
+
+            // 读取玩家配置文件
+            label.Content = "读取玩家配置文件...";
             await Task.Delay(100);
             probar.IsIndeterminate = true;
             try
@@ -49,160 +97,68 @@ namespace loader_ui
                 MessageBox.Show("启动器读不了配置文件惹！阁下是不是加了访问权限呢？", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                 Close();
             }
+            finally
+            {
+                probar.IsIndeterminate = false;
+                label.Content = "准备就绪了呢";
+
+                await Task.Delay(1000);
+                if (newuser)
+                {
+                    MessageBoxResult result = MessageBox.Show("阁下可能是第一次使用 SuperTeknoMW3 呢，本喵强烈建议你看一下使用帮助。\n是否立即查看？", "提示", MessageBoxButton.YesNo, MessageBoxImage.Information);
+                    if (result == MessageBoxResult.Yes)
+                    {
+                        Help help = new Help();
+                        help.ShowDialog();
+                    }
+                }
+            }
+        }
+
+        private async void DownloadUpdate()
+        {
+            probar.IsIndeterminate = true;
+            label.Content = "获取更新信息...";
+            List<string> files = Update.updatefiles;
+            string script = Update.updatescript;
+            await Task.Delay(1000);
+
+            label.Content = "准备下载...";
+            if (Directory.Exists("cache"))
+            {
+                Directory.CreateDirectory("cache");
+            }
+
             try
             {
-                FileChecksun();
-                InitDeleteFakeFile();
-            }
-            catch (FileNotFoundException)
-            {
-                MessageBox.Show("请将本程序放入游戏根目录后运行！", "提示", MessageBoxButton.OK, MessageBoxImage.Error);
+                Uri uri = chinese ? new Uri("http://superteknomw3-upgrade.daoapp.io/update_files/chinese/") : new Uri("http://superteknomw3-upgrade.daoapp.io/update_files/english/");
+                probar.IsIndeterminate = false;
+
+                foreach (var file in files)
+                {
+                    label.Content = "正在下载：" + file;
+
+                    FileDownload.ProgressChanged += (sender, e) =>
+                    {
+                        probar.Value = e.ProgressPercentage;
+                    };
+
+                    await FileDownload.DownloadFile(uri, file);
+                }
+
+                probar.IsIndeterminate = true;
+                label.Content = "准备更新...";
+                File.WriteAllText("cache\\script.txt", script);
+                await Task.Delay(3000);
+
+                MessageBox.Show("更新文件已下载完毕，即将重启启动器并安装更新！", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
+                Process.Start("SuperTeknoMW3-Update.exe");
                 Close();
-            }
-            catch (FileLoadException)
-            {
-                MessageBox.Show("你的游戏似乎是纯联机版，单人游戏将被禁用。如需进行单人游戏请下载完整版", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
-                cansp = false;
             }
             catch (Exception)
             {
-                MessageBox.Show("启动器出错了呢，请阁下检查一下游戏根目录有没有以前版本的启动器和其他乱七八糟的文件呢，如果有的话先清理一下吧。", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-                Close();
-            }
-            await Task.Delay(1000);
-            label.Content = "检查更新...";
-            probar.IsIndeterminate = true;
-            try
-            {
-                await Task.Factory.StartNew(() => CheckUpdate.DoCheckUpdate(new Uri("http://superteknomw3-upgrade.daoapp.io/upgrade.html")));
 
-                string version = CheckUpdate.version;
-                string info = CheckUpdate.info;
-                bool isforcibly = CheckUpdate.isforcibly;
-
-                if (version != "1.1.5")
-                {
-                    if (isforcibly)
-                    {
-                        MessageBoxResult result = MessageBox.Show("检测到新版本：" + version + "\n" + info + "\n\n请下载新版本后进行游戏！", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
-                        Process.Start("http://bbs.3dmgame.com/thread-5030431-1-1.html");
-                        Close();
-                    }
-                    else if (profile.SkipUpdate == false)
-                    {
-                        MessageBoxResult result = MessageBox.Show("检测到新版本：" + version + "\n" + info + "\n\n本次更新是非强制性的，是否立即下载新版本？", "提示", MessageBoxButton.YesNo, MessageBoxImage.Information);
-                        if (result == MessageBoxResult.Yes)
-                        {
-                            Process.Start("http://bbs.3dmgame.com/thread-5030431-1-1.html");
-                            Close();
-                        }
-                        else
-                        {
-                            profile.SkipUpdate = true;
-                            SaveProfile();
-                            await Task.Delay(1000);
-                            label.Content = "准备就绪了呢";
-                            probar.IsIndeterminate = false;
-                        }
-                    }
-                    else
-                    {
-                        label.Content = "准备就绪了呢";
-                        probar.IsIndeterminate = false;
-
-                        if (newuser)
-                        {
-                            MessageBoxResult result = MessageBox.Show("阁下可能是第一次使用 SuperTeknoMW3 呢，本喵强烈建议你看一下使用帮助。\n是否立即查看？", "提示", MessageBoxButton.YesNo, MessageBoxImage.Information);
-                            if (result == MessageBoxResult.Yes)
-                            {
-                                Help help = new Help();
-                                help.ShowDialog();
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    label.Content = "准备就绪了呢";
-                    probar.IsIndeterminate = false;
-
-                    if (newuser)
-                    {
-                        MessageBoxResult result = MessageBox.Show("阁下可能是第一次使用 SuperTeknoMW3 呢，本喵强烈建议你看一下使用帮助。\n是否立即查看？", "提示", MessageBoxButton.YesNo, MessageBoxImage.Information);
-                        if (result == MessageBoxResult.Yes)
-                        {
-                            Help help = new Help();
-                            help.ShowDialog();
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                label.Content = ex.Message;
-                probar.IsIndeterminate = false;
-            }
-            finally
-            {
-                EnableAll();
-            }
-        }
-
-        private void InitDeleteFakeFile()
-        {
-            string[] _fakefiles = new string[]
-            {
-                // SB TK Files
-                "client.wyc",
-                "TeknoMW3.exe",
-                "TeknoMW3_Update.exe",
-                "devraw\\video\\startup.bik",
-
-                //Other
-                "开始游戏.exe",
-                "开始游戏1.exe",
-                "开始游戏2.exe",
-            };
-
-            foreach (var item in _fakefiles)
-            {
-                if (File.Exists(item))
-                {
-                    File.Delete(item);
-                }
-            }
-        }
-
-        private void FileChecksun()
-        {
-            string[] _reqfiles = new string[]
-            {
-                "binkw32.dll",
-                "steam_api.dll",
-                "TeknoMW3.dll",
-                "iw5mp.exe",
-                "VMProtectSDK32.dll",
-            };
-            string[] _spfiles = new string[]
-            {
-                "iw5sp.exe",
-                "TeknoMW3_SP.dll",
-            };
-
-            foreach (var item in _reqfiles)
-            {
-                if (!File.Exists(item))
-                {
-                    throw new FileNotFoundException("请把启动器放到游戏根目录下运行！");
-                }
-            }
-
-            foreach (var item in _spfiles)
-            {
-                if (!File.Exists(item))
-                {
-                    throw new FileLoadException("没有单人游戏文件！");
-                }
+                throw;
             }
         }
 
@@ -377,18 +333,10 @@ namespace loader_ui
                         Settings st = new Settings(profile);
                         st.ShowDialog();
                         UpdateProfile();
-                        await Task.Delay(1000);
-                        label.Content = "准备就绪了呢";
-                        probar.IsIndeterminate = false;
                     }
                     else if (AutoChanged)
                     {
                         SaveProfile();
-                    }
-                    else
-                    {
-                        textBlock.Text = "欢迎阁下！" + profile.Name;
-                        cb_skipupdate.IsChecked = profile.SkipUpdate ? false : true;
                     }
                 }
                 else
@@ -400,9 +348,6 @@ namespace loader_ui
                     Settings st = new Settings(profile);
                     st.ShowDialog();
                     UpdateProfile();
-                    await Task.Delay(1000);
-                    label.Content = "准备就绪了呢";
-                    probar.IsIndeterminate = false;
                 }
             }
             catch (Exception)
@@ -414,9 +359,6 @@ namespace loader_ui
                 Settings st = new Settings(profile);
                 st.ShowDialog();
                 UpdateProfile();
-                await Task.Delay(1000);
-                label.Content = "准备就绪了呢";
-                probar.IsIndeterminate = false;
             }
         }
 
@@ -486,7 +428,7 @@ namespace loader_ui
             btn_settings.IsEnabled = true;
             cb_maxlevel.IsEnabled = true;
             cb_skipupdate.IsEnabled = true;
-            if (cansp == true)
+            if (havesp == true)
             {
                 btn_sp.IsEnabled = true;
             }
