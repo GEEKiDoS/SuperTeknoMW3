@@ -453,6 +453,7 @@ namespace loader_ui
 
             try
             {
+                File.Create("teknogods.ini");
                 SaveProfile();
             }
             catch (Exception)
