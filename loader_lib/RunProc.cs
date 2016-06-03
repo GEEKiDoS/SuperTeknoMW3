@@ -136,7 +136,7 @@ namespace loader_lib
                 throw new Exception("无法修改进程内存！");
             }
 
-            mutex = new System.Threading.Mutex(false, "TeknoMW3" + (pi.dwProcessId ^ 0x57).ToString("X8"));
+            mutex = new System.Threading.Mutex(false, "TeknoMW3" + (pi.dwProcessId ^ 0x57).ToString("X8")); //fix SP can not started.
             Win32Apis.ResumeThread(pi.hThread);
         }
 
@@ -152,7 +152,7 @@ namespace loader_lib
                 if (!string.IsNullOrWhiteSpace(MPClantag))
                 {
                     UIntPtr clantagptr;
-                    Win32Apis.WriteProcessMemory(pi, new IntPtr(0x1328d54), new byte[4], 4, out clantagptr);
+                    Win32Apis.WriteProcessMemory(pi, new IntPtr(0x1328d54), new byte[8], 8, out clantagptr);
                     if (clantagptr != (UIntPtr)0)
                     {
                         Win32Apis.WriteProcessMemory(pi, new IntPtr(0x1328d54), Encoding.ASCII.GetBytes(MPClantag), (uint)MPClantag.Length, out clantagptr);
@@ -169,6 +169,7 @@ namespace loader_lib
                         Win32Apis.WriteProcessMemory(pi, new IntPtr(0x1328d35), Encoding.ASCII.GetBytes(MPTitle), (uint)MPTitle.Length, out titleptr);
                     }
                 }
+
                 Win32Apis.CloseHandle(pi);
             }
 

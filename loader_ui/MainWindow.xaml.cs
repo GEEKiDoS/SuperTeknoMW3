@@ -80,7 +80,7 @@ namespace loader_ui
                 string info = CheckUpdate.info;
                 bool isforcibly = CheckUpdate.isforcibly;
 
-                if (version != "1.1.4")
+                if (version != "1.1.4_r2")
                 {
                     if (isforcibly)
                     {
@@ -396,9 +396,6 @@ namespace loader_ui
                     MessageBox.Show("配置文件不存在呢，请阁下先设置一下你的玩家信息吧。", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
                     CreateNewProfile();
                     newuser = true;
-
-                    Settings st = new Settings(profile);
-                    st.ShowDialog();
                     UpdateProfile();
                 }
             }
@@ -407,14 +404,7 @@ namespace loader_ui
                 File.Delete("teknogods.ini");
                 MessageBox.Show("启动器读取配置文件的时候出问题了%>_<%，还请阁下重新设置一下吧。", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
                 CreateNewProfile();
-
-                Settings st = new Settings(profile);
-                st.ShowDialog();
                 UpdateProfile();
-                await Task.Delay(1000);
-                label.Content = "准备就绪了呢";
-                probar.IsIndeterminate = false;
-                EnableAll();
             }
         }
 
@@ -450,16 +440,8 @@ namespace loader_ui
             profile.Maxfps = 300;
             profile.SkipUpdate = false;
 
-            try
-            {
-                File.Create("teknogods.ini");
-                SaveProfile();
-            }
-            catch (Exception)
-            {
-                MessageBox.Show("创建配置文件出现问题了，阁下给游戏设置只读了么？", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-                Close();
-            }
+            var settings = new Settings(profile);
+            settings.ShowDialog();
         }
 
         private void DisableAll()

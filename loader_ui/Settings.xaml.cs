@@ -35,7 +35,13 @@ namespace loader_ui
         {
             try
             {
+                using (var file = File.Create("teknogods.ini"))
+                {
+
+                }
+
                 IniParser ini = new IniParser("teknogods.ini");
+                ini.AddSetting("Settings", "Name", profile.Name);
                 ini.AddSetting("Settings", "ID", profile.ID);
                 ini.AddSetting("Settings", "FOV", profile.FOV.ToString());
                 ini.AddSetting("Settings", "Clantag", profile.Clantag);
@@ -73,25 +79,25 @@ namespace loader_ui
                 return;
             }
 
-            if ((string.IsNullOrEmpty(profile.Name) || string.IsNullOrWhiteSpace(profile.Name)) || (profile.Name.Length > 15 || profile.Name.Length < 3))
+            if ((string.IsNullOrEmpty(txt_nickname.Text) || string.IsNullOrWhiteSpace(txt_nickname.Text)) || (txt_nickname.Text.Length > 15 || txt_nickname.Text.Length < 3))
             {
                 MessageBox.Show("游戏昵称长度不能低于3位和高于15位！\n不能为空或者只用空白字符，也不能使用特殊字符！请重新输入。", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
 
-            if (profile.FOV > 90 || profile.FOV < 65)
+            if (Convert.ToInt32(txt_fov.Text) > 90 || Convert.ToInt32(txt_fov.Text) < 65)
             {
                 MessageBox.Show("视野大小不能低于65和高于90！请重新输入。", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
 
-            if (profile.Clantag.Length > 4)
+            if (txt_clan.Text.Length > 4)
             {
                 MessageBox.Show("战队标签字符数不可超过4位！请重新输入。", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
 
-            if (profile.Title.Length > 25)
+            if (txt_title.Text.Length > 25)
             {
                 MessageBox.Show("个人标签字符数不可超过25位！请重新输入。", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
